@@ -23,10 +23,9 @@ async function getData(url){
             });
             // The whole response has been received. Print out the result.
             resp.on('end', () => {
-                //console.log(data);
                 try {
                     let json = JSON.parse(data);
-                    // do something with JSON
+                    //do something with JSON
                     resolve(json)
                 } catch (error) {
                     console.error(error.message);
@@ -41,7 +40,6 @@ async function getData(url){
     })
 }
 
-
 async function getCoinMarketCapData(){
     let url = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?CMC_PRO_API_KEY="+coinMarketCapApiKey+"&slug="+ ticker
     return await getData(url)
@@ -51,14 +49,11 @@ async function getCoinMarketCapData(){
 async function getDataBinance(baseCurrency){
     if (baseCurrency == 'usd'){baseCurrency = 'USDT'}
     let url = 'https://api.binance.com/api/v3/ticker/price?symbol='+ ticker.toUpperCase() + baseCurrency.toUpperCase()
-    //console.log(url)
-    //console.log(await getData(url))
     return await getData(url)
 }
 
 async function getDataCoinGecko(baseCurrency){
     if(baseCurrency == 'usd'){
-        //https://api.coingecko.com/api/v3/coins/pivx/tickers
         let url = 'https://api.coingecko.com/api/v3/coins/'+ticker+'/tickers'
         let data = await getData(url)
         console.log(data)
@@ -92,24 +87,18 @@ async function filterOutliers(priceData) {
     let noneOutliers=[]
     priceData.forEach(number => {
         if(number > (Q3 + (1.5 * IQR)) || number < (Q1 - (1.5 * IQR))) {
-            //console.log('number is outlier: ' + number);
-        }
-        else {
+        } else {
             noneOutliers.push(number);
         }
     });
     return noneOutliers
 }
 
-
-
 app.get('/', async (req, res) => {
     const average = array => array.reduce((a, b) => a + b) / array.length;
     let baseCurrency = 'usd'
     if(req.query.convertCurrency){baseCurrency = req.query.convertCurrency}
-
-
-
+    //Compiling the date against USD
     if(baseCurrency == 'usd'){
         if(lastTimeCheckedUsd < Date.now() - 30000){
             lastTimeCheckedUsd = Date.now()
@@ -126,7 +115,6 @@ app.get('/', async (req, res) => {
             }else{
                 console.log("Coin Market Cap not working")
             }
-
             //average the price in coingecko
             if(coinGeckoData){
                 if(coinGeckoData[0]){
@@ -135,36 +123,29 @@ app.get('/', async (req, res) => {
                     }
                 }
             }
-
             //Avg all the price data together to get an avg price in the base currency
             //filter the outliers
             priceArray = await filterOutliers(priceArray)
             //get the avg of the priceArray
-
             console.log("updatedPriceUSD")
         }   
         price = average(priceArray)
     }else{
+        //Compiling that data against a different baseCurrency other then USD
         if(lastTimeChecked < Date.now() - 30000){
             lastTimeChecked = Date.now()
-
             nonUsdCache.baseCurrency = []
-
             let binanceData = await getDataBinance(baseCurrency)
-
             if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
                 console.log("bad region, binance won't give data")
             }else{
-
                 nonUsdCache.baseCurrency.push(binanceData.price)
             }
-
             console.log("updatedPriceWeird")
         }
         price = average(nonUsdCache.baseCurrency)
     }
     res.json(price)
-
 })
 
 app.listen(port, () => {
