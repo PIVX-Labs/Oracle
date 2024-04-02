@@ -1,7 +1,11 @@
 const express = require('express')
 const https = require('https');
 const app = express()
+const { dataSource } = require('./src/dataSource');
+const { readDataSource, saveDataSource } = require('./src/db');
 const port = 3000
+
+let marketData = []
 
 let price 
 let lastTimeCheckedUsd = lastTimeChecked = 0
@@ -11,6 +15,15 @@ let ticker = 'pivx'
 //These are the two caches
 let nonUsdCache = {}
 let priceArray = new Array();
+
+
+async function onStart(){
+    //load price data from the db
+    const arrPersistantDataSource = await readDataSource();
+    for (const dataSource of arrPersistantDataSource) {
+        marketData.push(dataSource);
+    }
+}
 
 async function getData(url){
     console.log(url)
@@ -41,24 +54,39 @@ async function getData(url){
 }
 
 async function getCoinMarketCapData(){
+    //format input data and output in a known format for the rest of the program
+
     let url = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?CMC_PRO_API_KEY="+coinMarketCapApiKey+"&slug="+ ticker
     return await getData(url)
 
 }
 
 async function getDataBinance(baseCurrency){
+    //format input data and output in a known format for the rest of the program
+
+    //use USDT as Binance doesn't do just straight usd
     if (baseCurrency == 'usd'){baseCurrency = 'USDT'}
     let url = 'https://api.binance.com/api/v3/ticker/price?symbol='+ ticker.toUpperCase() + baseCurrency.toUpperCase()
     return await getData(url)
 }
 
 async function getDataCoinGecko(baseCurrency){
+    //format input data and output in a known format for the rest of the program
+
+    //Check what the base currency is
     if(baseCurrency == 'usd'){
         let url = 'https://api.coingecko.com/api/v3/coins/'+ticker+'/tickers'
         let data = await getData(url)
         console.log(data)
         if(data.tickers){
+            //TODO: Sort this data better so that we can actually use it effectively 
+            let coinGeckoData = new dataSource("coinGecko",data.tickers,Math.floor(new Date().getTime() / 1000))
+            marketData.push(coinGeckoData)
+
+            saveDataSource(marketData)
+            //saveOrders("coinGecko",data.tickers,Math.floor(new Date().getTime() / 1000))
             return data.tickers
+
         }else{
             console.log("coingecko Error")
         }
@@ -67,7 +95,7 @@ async function getDataCoinGecko(baseCurrency){
     }
 }
 
-async function filterOutliers(priceData) {
+async function filterOutliers(marketData) {
     //We are just going to create quartiles to get rid of the outliers
     const asc = arr => arr.sort((a, b) => a - b);
     const quartile = (arr, q) => {
@@ -81,11 +109,11 @@ async function filterOutliers(priceData) {
             return sorted[base];
         }
     };
-    const Q1 = quartile(priceData, .40);
-    const Q3 = quartile(priceData, .70);
+    const Q1 = quartile(marketData, .40);
+    const Q3 = quartile(marketData, .70);
     const IQR = Q3 - Q1;
     let noneOutliers=[]
-    priceData.forEach(number => {
+    marketData.forEach(number => {
         if(number > (Q3 + (1.5 * IQR)) || number < (Q1 - (1.5 * IQR))) {
         } else {
             noneOutliers.push(number);
@@ -94,7 +122,48 @@ async function filterOutliers(priceData) {
     return noneOutliers
 }
 
+/**
+ * Checks the time from the last checks of our data sources updates them if need be, and returns the data the users need
+ * @param {string} baseCurrency //The currency ticker that we want against pivx if none passed we will return everything we have
+ */
+async function getMarketData(baseCurrency){
+    //Get the last update from each of the data sources
+
+}
+
+app.get('/currencies'), async(req, res) =>{
+    //(list of possible currencies alongside the number)
+
+
+    //return in the following format:
+    // [
+    //     {
+    //       "currency": "USD",
+    //       "value": 0.55,
+    //       "last_updated": 0 // just the timestamp this data was last updated successfully
+    //     },
+    //     // ...
+    //   ]
+}
+
+app.get('/price/$currency'), async(req,res) =>{
+    //return a single currency
+
+
+    //return in the following format:
+    // [
+    //     {
+    //       "currency": "USD",
+    //       "value": 0.55,
+    //       "last_updated": 0 // just the timestamp this data was last updated successfully
+    //     },
+    //     // ...
+    //   ]
+}
+
+//Legacy and will be getting migrated to the other routes
 app.get('/', async (req, res) => {
+    //returns an avg of usd
     const average = array => array.reduce((a, b) => a + b) / array.length;
     let baseCurrency = 'usd'
     if(req.query.convertCurrency){baseCurrency = req.query.convertCurrency}
@@ -145,8 +214,20 @@ app.get('/', async (req, res) => {
         }
         price = average(nonUsdCache.baseCurrency)
     }
+
+    //change to respond in the format below
     res.json(price)
+    // [
+    //     {
+    //       "currency": "USD",
+    //       "value": 0.55,
+    //       "last_updated": 0 // just the timestamp this data was last updated successfully
+    //     },
+    //     // ...
+    //   ]
 })
+
+onStart()
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
