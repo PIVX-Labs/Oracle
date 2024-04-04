@@ -12,7 +12,9 @@ async function saveDataSource(priceData) {
     // Convert orders to a disk-safe format
     const priceDiskData = [];
 
+
     for (const dataSource of priceData) {
+        console.log(dataSource)
         // Convert to JSON
         const cDataSource = dataSource.toJSON();
         priceDiskData.push(cDataSource);
@@ -45,7 +47,7 @@ async function readDataSource() {
         priceData.push(priceDiskDataOut);
     }
 
-    console.log('DB: Parsed ' + priceDiskData.length + ' orders from disk');
+    console.log('DB: Parsed ' + priceDiskData.length + ' data source(s) from disk');
 
     // Return the orders
     return priceData;

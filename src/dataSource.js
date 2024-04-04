@@ -14,13 +14,13 @@ class dataSource {
 
         //Object of current price data that the data source provides in name:price format
         //the 'market place' name is required due to allowing aggregators like coingecko and coinmarketcap
-        // stakecube {
+        // stakecube:
         //     {
         //         btc:0.0000630
         //         eth:0.01
         //         usd:0.45
         //     }
-        // }
+        // 
         this.data = data
 
         //We use UNIX time not the javascript native (seconds in unix vs milliseconds as js native)
@@ -46,7 +46,7 @@ class dataSource {
         const cJSONdataSource = { ...this };
 
         // Return the JSON Order
-        return cJSOcJSONdataSourceNOrder;
+        return cJSONdataSource;
     }
 }
 
