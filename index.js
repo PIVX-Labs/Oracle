@@ -176,16 +176,14 @@ async function getMarketData(baseCurrency){
 app.get('/currencies', async(req, res) =>{
     //(list of possible currencies alongside the number)
     let response = []
-
     const average = array => array.reduce((a, b) => a + b) / array.length;
+
     marketData.forEach((marketDataLastChecked) => {
         console.log(marketDataLastChecked.lastUpdated)
         if(marketDataLastChecked.lastUpdated < Date.now() - 30000){
             //If the lastupdated time is to out of date run an async to update it
             console.log("Update database")
             getMarketData('usd');
-            //console.log(marketDataLastChecked.data)
-
         }
         //average the price
         let aggregate = {}
@@ -198,12 +196,10 @@ app.get('/currencies', async(req, res) =>{
                     aggregate[ticker] = []
                     aggregate[ticker].push(tickerPrice)
                 }
-                //console.log(ticker +" : " + tickerPrice)
             }
 
         }
 
-        //console.log(aggregate)
         for (const [key, value] of Object.entries(aggregate)){
             let jsonFormat = {}
             jsonFormat.currency = key
@@ -218,8 +214,6 @@ app.get('/currencies', async(req, res) =>{
         console.log(response)
         
     })
-    //pull from the market data and avg all the prices from the exchanges together throwing out the outliers 
-
 
     //return in the following format:
     // [
@@ -233,9 +227,48 @@ app.get('/currencies', async(req, res) =>{
     res.json(response)
 });
 
-app.get('/price/$currency', async(req,res) =>{
+app.get('/price/:currency', async(req,res) =>{
     //return a single currency
+    let response = []
+    const average = array => array.reduce((a, b) => a + b) / array.length;
 
+    //Look through our db finding anything that matches the currency provided, Take all the values and add them up then return the avg with removed outliers
+    marketData.forEach((marketDataLastChecked) => {
+        if(marketDataLastChecked.lastUpdated < Date.now() - 30000){
+            //If the lastupdated time is to out of date run an async to update it
+            console.log("Update database")
+            getMarketData('usd');
+        }
+        //average the price
+        let aggregate = {}
+        for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
+            for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
+                //console.log(ticker)
+                if(ticker == req.params.currency){
+                    console.log(tickerPrice)
+                    if(aggregate[ticker]){
+                        aggregate[ticker].push(tickerPrice)
+                    }else{
+                        aggregate[ticker] = []
+                        aggregate[ticker].push(tickerPrice)
+                    }
+                }
+            }
+        }
+        for (const [key, value] of Object.entries(aggregate)){
+            let jsonFormat = {}
+            jsonFormat.currency = key
+            //filter outliers
+            let outliers = filterOutliers(value)
+            //avg and set the price value
+            jsonFormat.value = average(outliers)
+            jsonFormat.last_updated = marketDataLastChecked.lastUpdated
+
+            response.push(jsonFormat)
+        }
+        console.log(response)
+    })
+    res.json(response)
 
     //return in the following format:
     // [
