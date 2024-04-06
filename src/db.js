@@ -14,7 +14,7 @@ async function saveDataSource(priceData) {
 
 
     for (const dataSource of priceData) {
-        console.log(dataSource)
+        //console.log(dataSource)
         // Convert to JSON
         const cDataSource = dataSource.toJSON();
         priceDiskData.push(cDataSource);

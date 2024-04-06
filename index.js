@@ -21,9 +21,6 @@ async function getOrder(dataSourceNamePassed){
 }
 
 async function updateDataSource(dataSource,data,updateTime){
-    console.log("++++++++")
-    console.log(dataSource)
-    console.log("++++++++")
     dataSource.data = data;
     dataSource.lastUpdated = updateTime;
     await saveDataSource(marketData);
@@ -38,7 +35,7 @@ async function onStart(){
 }
 
 async function getData(url){
-    console.log(url)
+    //console.log(url)
     return new Promise((resolve) => {
         https.get(url, (resp)=>{
             let data = '';
@@ -102,20 +99,20 @@ async function getDataCoinGecko(baseCurrency){
                 coinGeckoReturnData[`${value.market.name}`].eth = value.converted_last.eth
                 coinGeckoReturnData[`${value.market.name}`].usd = value.converted_last.usd
             }
-            // //console.log(coinGeckoReturnData)
-            //const coinGeckoData = new dataSource("coinGecko",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
-            // //check if dataSource already exists
-            // marketData.push(coinGeckoData)
-            //saveDataSource(marketData)
-
-            //Get the dataSource
             let dataFromDisk = await getOrder("coinGecko")
-            //console.log(dataFromDisk)
-            updateDataSource(dataFromDisk, coinGeckoReturnData, updateTime)
-
-            //saveOrders("coinGecko",data.tickers,Math.floor(new Date().getTime() / 1000))
+            //Check if coinGecko is in the db
+            if(dataFromDisk === undefined){
+                //if coingecko is not in the db create it
+                const coinGeckoData = new dataSource("coinGecko",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
+                //check if dataSource already exists
+                marketData.push(coinGeckoData)
+                saveDataSource(marketData)
+            }else{
+                //update coingecko
+                updateDataSource(dataFromDisk, coinGeckoReturnData, updateTime)
+            }
+            //For the old endpoint will be removed soon
             return data.tickers
-
         }else{
             console.log("coingecko Error")
         }
@@ -124,7 +121,7 @@ async function getDataCoinGecko(baseCurrency){
     }
 }
 
-async function filterOutliers(marketData) {
+function filterOutliers(marketData) {
     //We are just going to create quartiles to get rid of the outliers
     const asc = arr => arr.sort((a, b) => a - b);
     const quartile = (arr, q) => {
@@ -157,19 +154,69 @@ async function filterOutliers(marketData) {
  */
 async function getMarketData(baseCurrency){
     //Get the last update from each of the data sources
-
+    let coinGeckoData = await getDataCoinGecko(baseCurrency)
+    let binanceData = await getDataBinance(baseCurrency)
+    let CoinMarketCapData =await getCoinMarketCapData(baseCurrency)
+    //Check if it worked
+    if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
+        console.log("bad region, binance won't give data")
+    }else{
+    }
+    if(CoinMarketCapData.data){
+    }else{
+        console.log("Coin Market Cap not working")
+    }
+    //average the price in coingecko
+    if(coinGeckoData){
+    }else{
+        console.log("issue with coinGeckoData: " + coinGeckoData)
+    }
 }
 
 app.get('/currencies', async(req, res) =>{
     //(list of possible currencies alongside the number)
+    let response = []
 
-    //Check for required updates and async call
-    // for (marketDataLastChecked in marketData){
-    //     console.log(marketDataLastChecked)
-    // }
+    const average = array => array.reduce((a, b) => a + b) / array.length;
     marketData.forEach((marketDataLastChecked) => {
         console.log(marketDataLastChecked.lastUpdated)
-        //If the lastupdated time is to out of date run an async to update it
+        if(marketDataLastChecked.lastUpdated < Date.now() - 30000){
+            //If the lastupdated time is to out of date run an async to update it
+            console.log("Update database")
+            getMarketData('usd');
+            //console.log(marketDataLastChecked.data)
+
+        }
+        //average the price
+        let aggregate = {}
+        for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
+
+            for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
+                if(aggregate[ticker]){
+                    aggregate[ticker].push(tickerPrice)
+                }else{
+                    aggregate[ticker] = []
+                    aggregate[ticker].push(tickerPrice)
+                }
+                //console.log(ticker +" : " + tickerPrice)
+            }
+
+        }
+
+        //console.log(aggregate)
+        for (const [key, value] of Object.entries(aggregate)){
+            let jsonFormat = {}
+            jsonFormat.currency = key
+            //filter outliers
+            let outliers = filterOutliers(value)
+            //avg and set the price value
+            jsonFormat.value = average(outliers)
+            jsonFormat.last_updated = marketDataLastChecked.lastUpdated
+
+            response.push(jsonFormat)
+        }
+        console.log(response)
+        
     })
     //pull from the market data and avg all the prices from the exchanges together throwing out the outliers 
 
@@ -183,7 +230,7 @@ app.get('/currencies', async(req, res) =>{
     //     },
     //     // ...
     //   ]
-    res.send("hia")
+    res.json(response)
 });
 
 app.get('/price/$currency', async(req,res) =>{
