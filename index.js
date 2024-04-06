@@ -21,6 +21,9 @@ async function getOrder(dataSourceNamePassed){
 }
 
 async function updateDataSource(dataSource,data,updateTime){
+    console.log("++++++++")
+    console.log(dataSource)
+    console.log("++++++++")
     dataSource.data = data;
     dataSource.lastUpdated = updateTime;
     await saveDataSource(marketData);
@@ -106,8 +109,8 @@ async function getDataCoinGecko(baseCurrency){
             //saveDataSource(marketData)
 
             //Get the dataSource
-            let dataFromDisk = getOrder("coinGecko")
-            console.log(dataFromDisk)
+            let dataFromDisk = await getOrder("coinGecko")
+            //console.log(dataFromDisk)
             updateDataSource(dataFromDisk, coinGeckoReturnData, updateTime)
 
             //saveOrders("coinGecko",data.tickers,Math.floor(new Date().getTime() / 1000))
