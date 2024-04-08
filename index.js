@@ -74,31 +74,29 @@ async function getDataBinance(baseCurrency){
     let url = 'https://api.binance.com/api/v3/ticker/price?symbol='+ ticker.toUpperCase() + baseCurrency.toUpperCase()
    
     let data = await getData(url)
-    let updateTime = Math.floor(new Date().getTime() / 1000)
 
     let dataFromDisk = await getMarketDataSource("binance")
     //check if binance returned what we think it should
     if(data.price){
 
-        //Check if coinGecko is in the db
+        //Check if binance is in the db
         if(dataFromDisk === undefined){
             let binanceReturnData = {
                 'binance':{}
             }
-            //if coingecko is not in the db create it
-            const coinGeckoData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
+            //if binance is not in the db create it
+            const binanceData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
             //check if dataSource already exists
-            marketData.push(coinGeckoData)
+            marketData.push(binanceData)
             saveDataSource(marketData)
         }else{
             let binanceReturnData = await getMarketDataSource('binance')
             binanceReturnData.data.binance[`${baseCurrency}`] = data.price
-            //update coingecko
-            updateDataSource(dataFromDisk, binanceReturnData.data, updateTime)
+            //update binance
+            updateDataSource(dataFromDisk, binanceReturnData.data, Math.floor(new Date().getTime() / 1000))
         }
     //something went wrong with binance
     }else{
-        
         //Check if binance exists in the local db
         //if it does we have nothing to update it with because something went wrong
         //but if not let's make sure it has a template so that it will try again in the future
@@ -106,11 +104,15 @@ async function getDataBinance(baseCurrency){
             let binanceReturnData = {
                 'binance':{}
             }
-            //if coingecko is not in the db create it
-            const coinGeckoData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
+            //if binance is not in the db create it
+            const binanceData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
             //check if dataSource already exists
-            marketData.push(coinGeckoData)
+            marketData.push(binanceData)
             saveDataSource(marketData)
+        }else{
+            //something went wrong with the binance call but we should still update the time it was last checked to stop spam api calls
+            let binanceReturnData = await getMarketDataSource('binance')
+            updateDataSource(dataFromDisk, binanceReturnData.data, Math.floor(new Date().getTime() / 1000))
         }
     }
     return await getData(url)
@@ -123,7 +125,6 @@ async function getDataCoinGecko(baseCurrency){
     let data = await getData(url)
     if(data.tickers){
         let coinGeckoReturnData = {}
-        let updateTime = Math.floor(new Date().getTime() / 1000)
         for(const [key, value] of Object.entries(data.tickers)){
             //create the json we want to send back
             coinGeckoReturnData[`${value.market.name}`] = {}
@@ -142,7 +143,7 @@ async function getDataCoinGecko(baseCurrency){
             saveDataSource(marketData)
         }else{
             //update coingecko
-            updateDataSource(dataFromDisk, coinGeckoReturnData, updateTime)
+            updateDataSource(dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
         }
         //For the old endpoint will be removed soon
         return data.tickers
@@ -245,7 +246,7 @@ app.get('/currencies', async(req, res) =>{
                 //filter outliers
                 let outliers = filterOutliers(value)
                 //avg and set the price value
-                jsonFormat.value = average(outliers)
+                jsonFormat.value = parseFloat(average(outliers).toFixed(8))
                 jsonFormat.last_updated = marketDataLastChecked.lastUpdated
                 response.push(jsonFormat)
             }
@@ -292,7 +293,7 @@ app.get('/price/:currency', async(req,res) =>{
             //filter outliers
             let outliers = filterOutliers(value)
             //avg and set the price value
-            jsonFormat.value = average(outliers)
+            jsonFormat.value = parseFloat(average(outliers).toFixed(8))
             jsonFormat.last_updated = marketDataLastChecked.lastUpdated
 
             response.push(jsonFormat)
