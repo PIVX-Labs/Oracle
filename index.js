@@ -306,7 +306,7 @@ app.get('/currencies', async(req, res) =>{
     if(marketData.length == 0){
         console.log("ran no db")
         await getMarketData('coinGecko','usd');
-        await getMarketData('getDataCoinGeckoDirect', 'usd')
+        await getMarketData('coinGeckoDirect', 'usd')
         await getMarketData('binance','usd');
         await getMarketData('coinMarketCap','usd');
     }else{
