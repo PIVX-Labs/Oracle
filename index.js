@@ -295,6 +295,8 @@ app.get('/currencies', async(req, res) =>{
     res.json(response)
 });
 
+app.use(express.static('public'));
+
 app.get('/price/:currency', async(req,res) =>{
 
     //if marketData isn't set up
