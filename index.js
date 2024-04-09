@@ -148,7 +148,7 @@ async function getDataBinance(baseCurrency){
 
 
 /**
- * Gets information from coin gecko
+ * Gets information from coin gecko about markets
  * @param {string} baseCurrency 
  * @returns 
  */
@@ -172,6 +172,45 @@ async function getDataCoinGecko(baseCurrency){
         if(dataFromDisk === undefined){
             //if coingecko is not in the db create it
             const coinGeckoData = new dataSource("coinGecko",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
+            //check if dataSource already exists
+            marketData.push(coinGeckoData)
+            saveDataSource(marketData)
+        }else{
+            //update coingecko
+            updateDataSource(dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
+        }
+        //For the old endpoint will be removed soon
+        return data.tickers
+    }else{
+        console.log("coingecko Error")
+    }
+}
+
+/**
+ * Gets information from coin gecko directly.
+ * Market data that is created by coingecko unlike the other call which just passes through marketdata from other markets
+ * @param {string} baseCurrency 
+ * @returns 
+ */
+async function getDataCoinGeckoDirect(baseCurrency){
+    console.log("ran coinGecko Direct")
+    //format input data and output in a known format for the rest of the program
+    //Check what the base currency is
+    let url = 'https://api.coingecko.com/api/v3/coins/'+ticker+'?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'
+    let data = await getData(url)
+    if(data.market_data.current_price){
+        let coinGeckoReturnData = {}
+        coinGeckoReturnData['coinGecko'] = {}
+        for(const [key, value] of Object.entries(data.market_data.current_price)){
+            console.log("ran loop: "+ key + ":"+ value )
+
+            coinGeckoReturnData.coinGecko[`${key}`] = value
+        }
+        let dataFromDisk = await getMarketDataSource("coinGeckoDirect")
+        //Check if coinGecko is in the db
+        if(dataFromDisk === undefined){
+            //if coingecko is not in the db create it
+            const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
             //check if dataSource already exists
             marketData.push(coinGeckoData)
             saveDataSource(marketData)
@@ -232,6 +271,16 @@ async function getMarketData(dataSource, baseCurrency){
             console.log("issue with coinGeckoData: ")
         }
     }
+
+    if (dataSource == 'coinGeckoDirect'){
+        let coinGeckoDirectData = await getDataCoinGeckoDirect(baseCurrency)
+        //average the price in coingecko
+        if(coinGeckoDirectData){
+        }else{
+            console.log("issue with coinGeckoDirectData: ")
+        }
+    }
+
     if (dataSource == 'binance'){
         let binanceData = await getDataBinance(baseCurrency)
         if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
