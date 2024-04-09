@@ -14,16 +14,30 @@ let marketData = []
 let coinMarketCapApiKey = ""
 let ticker = 'pivx'
 
+/**
+ * Allows you to get all the marketData from a data Source
+ * @param {string} dataSourceNamePassed //The name of the data source
+ * @returns 
+ */
 async function getMarketDataSource(dataSourceNamePassed){
     return marketData.find(dataSource => dataSource.dataSourceName === dataSourceNamePassed);
 }
 
+/**
+ * Updates a data source with new data
+ * @param {string} dataSource 
+ * @param {object} data 
+ * @param {int} updateTime 
+ */
 async function updateDataSource(dataSource,data,updateTime){
     dataSource.data = data;
     dataSource.lastUpdated = updateTime;
     await saveDataSource(marketData);
 }
 
+/**
+ * Puts all the database info into market data on the start of the program
+ */
 async function onStart(){
     //load price data from the db
     const arrPersistantDataSource = await readDataSource();
@@ -32,6 +46,11 @@ async function onStart(){
     }
 }
 
+/**
+ * System to send get requests to an external server
+ * @param {string} url 
+ * @returns 
+ */
 async function getData(url){
     return new Promise((resolve) => {
         https.get(url, (resp)=>{
@@ -59,6 +78,10 @@ async function getData(url){
     })
 }
 
+/**
+ * Gets the coin market cap data
+ * @returns 
+ */
 async function getCoinMarketCapData(){
     //format input data and output in a known format for the rest of the program
 
@@ -67,6 +90,11 @@ async function getCoinMarketCapData(){
 
 }
 
+/**
+ * grabs price ticker data from binance
+ * @param {string} baseCurrency 
+ * @returns 
+ */
 async function getDataBinance(baseCurrency){
     //format input data and output in a known format for the rest of the program
     //use USDT as Binance doesn't do just straight usd
@@ -118,6 +146,12 @@ async function getDataBinance(baseCurrency){
     return await getData(url)
 }
 
+
+/**
+ * Gets information from coin gecko
+ * @param {string} baseCurrency 
+ * @returns 
+ */
 async function getDataCoinGecko(baseCurrency){
     //format input data and output in a known format for the rest of the program
     //Check what the base currency is
@@ -152,6 +186,12 @@ async function getDataCoinGecko(baseCurrency){
     }
 }
 
+/**
+ * Filters the outliers from an array to give you a "cleaner" array without huge outliers
+ * These outliers can come about due to bad api's or broken exchanges
+ * @param {array} marketData 
+ * @returns 
+ */
 function filterOutliers(marketData) {
     //We are just going to create quartiles to get rid of the outliers
     const asc = arr => arr.sort((a, b) => a - b);
