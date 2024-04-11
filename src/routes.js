@@ -93,6 +93,8 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
         await getMarketData(marketData, 'binance','usd');
         await getMarketData(marketData, 'coinMarketCap','usd');
     }else{
+        let aggregate = {}
+        let oldestCheck = 0
         //Look through our db finding anything that matches the currency provided, Take all the values and add them up then return the avg with removed outliers
         marketData.forEach((marketDataLastChecked) => {
             if(marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]){
@@ -100,8 +102,9 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
                 console.log("Updated database: " + marketDataLastChecked.dataSourceName)
                 getMarketData(marketData, marketDataLastChecked.dataSourceName,req.params.currency);
             }
+            if (marketDataLastChecked.lastUpdated > oldestCheck){oldestCheck = marketDataLastChecked.lastUpdated}
             //average the price
-            let aggregate = {}
+
             for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
                 for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
                     if(ticker == req.params.currency){
@@ -114,18 +117,19 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
                     }
                 }
             }
-            for (const [key, value] of Object.entries(aggregate)){
-                let jsonFormat = {}
-                jsonFormat.currency = key
-                //filter outliers
-                let outliers = filterOutliers(value)
-                //avg and set the price value
-                jsonFormat.value = parseFloat(average(outliers).toFixed(8))
-                jsonFormat.last_updated = marketDataLastChecked.lastUpdated
-
-                response.push(jsonFormat)
-            }
         })
+        for (const [key, value] of Object.entries(aggregate)){
+
+            let jsonFormat = {}
+            jsonFormat.currency = key
+            //filter outliers
+            let outliers = filterOutliers(value)
+            //avg and set the price value
+            jsonFormat.value = parseFloat(average(outliers).toFixed(8))
+            jsonFormat.last_updated = oldestCheck
+    
+            response.push(jsonFormat)
+        }
     }
     res.json(response)
 });
