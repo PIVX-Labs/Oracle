@@ -1,0 +1,185 @@
+body {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    background-image: linear-gradient(-15deg, #7400ff, #3c067c, #380061, #370056, #370054, #370054, #380050, #380061, #3c067c, #7400ff);
+    -webkit-animation: Disco 20s cubic-bezier(.46,.03,.52,.96) infinite;
+    -moz-animation: Disco 20s cubic-bezier(.46,.03,.52,.96) infinite;
+    animation: Disco 20s cubic-bezier(.46,.03,.52,.96) infinite;
+    background-size: 200% 200%;
+    background-attachment: fixed;
+  
+    overflow: hidden;
+    overflow-y: auto;
+    min-height: 100vh;
+
+    transition: 0.5s;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-Bold.ttf') format('truetype');
+}
+
+a {
+    color: #fff;
+    text-decoration-color: #BB25FF;
+}
+
+a:hover {
+    color: #ffffffaf;
+}
+
+@-webkit-keyframes Disco {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+
+@keyframes Disco {
+    0% {
+        background-position: 10% 0%;
+    }
+    50% {
+        background-position: 91% 100%;
+    }
+    100% {
+        background-position: 10% 0%;
+        transform: rotate(0deg);
+    }
+}
+
+.app {
+    width: fit-content;
+    height: fit-content;
+    color: white;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background-color: rgba(37, 6, 58, 0.74);
+    border-radius: 10px;
+    padding: 25px 50px;
+    margin-left: 15px;
+    margin-right: 15px;
+    box-shadow: 7px 7px 33px 0px #00000026;
+    border: 1px solid #9046B1;
+    transition: 0.4s;
+}
+
+.blurred {
+    filter: blur(10px);
+    -webkit-filter: blur(10px);
+}
+
+.darkened {
+    backdrop-filter: brightness(0.5);
+    -webkit-backdrop-filter: brightness(0.5);
+}
+
+input {
+    background-color: #ffffff21;
+    border: 0px solid transparent;
+    transition: all .125s ease-in-out;
+    color: #fff;
+    border-radius: 6px;
+}
+
+hr {
+    color: #9046B1;
+}
+
+textarea, select, input, button { outline: none; }
+
+.app input, .app button {
+    margin: 15px 0;
+    padding: 10px;
+}
+
+.logo-gradient {
+    background: linear-gradient(to right, #8B20CA 50%, #6202D4 60%);
+    background-size: 200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: BreathingGradient 7.5s cubic-bezier(.46,.03,.52,.96) infinite;
+}
+
+@keyframes BreathingGradient {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+#intro code {
+    width: 100%;
+    display: block;
+    overflow: auto;
+    background-color: #0000006e;
+    padding: 5px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-top: 5px;
+    background-image: linear-gradient(#9046B130, transparent);
+}
+
+.menu h4 {
+    transition: 0.2s;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.text-btn {
+    opacity: 0.5;
+}
+
+.text-btn:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+button {
+    background-color: #9b46c72e;
+    border-color: #c24eff9c;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    border-style: solid;
+    border-width: 1px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background-color: #9b46c733;
+    border-color: #c24eff;
+}
+
+.footer {
+    display: flex;
+    flex-flow: wrap;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    bottom: 5px;
+    color: #fff;
+    font-size: 14px;
+    z-index: -1;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.footer a {
+    margin-left: 5px;
+    margin-right: 5px;
+}

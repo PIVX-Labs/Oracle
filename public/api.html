@@ -15,7 +15,7 @@
         <meta name="theme-color" content="#470e75">
 
         <!-- OpenGraph tags -->
-        <meta property="og:title" content="Labs Oracle">
+        <meta property="og:title" content="Labs Oracle | API">
         <meta property="og:description" content="Discover how the PIVX Rewards platform is funded with a transparent, real-time statistical display, from Labs revenue to community donations and everything in-between.">
         <meta property="og:image" content="https://pivx.promo/img/banner.png">
         <meta property="og:url" content="https://pivx.promo">
@@ -28,29 +28,42 @@
     <body id="background">
         <center id="app" class="app" style="max-width: 450px;">
             <div style="font-family: Montserrat;">
-                <h1 id="price" class="logo-gradient" style="margin-bottom: 0;font-size: 45px;">...</h1>
+                <h1 class="logo-gradient" style="margin-bottom: 0;font-size: 45px;">Labs Oracle API</h1>
             </div>
             <div>
-            <i><code id="price-updated">...</code></i>
+            <i><code>Dive in to the free PIVX Labs pricing API</code></i>
             <br>
             <hr style="margin-top: 15px;margin-bottom: 15px;">
 
             <div id="intro">
-                <select id="currencySelect">
-                    <!-- Options will be filled using JavaScript -->
-                </select>
+                <center>
+                    <h3 style="margin-bottom: 5px;">Currencies</h3>
+                </center>
+                <p style="opacity: 0.7; margin-top: 0px;">Retrieve the full list of currencies converted from PIVX</p>
+                <code>/api/v1/currencies</code>
+                <code id="currencies" style="max-height: 125px;overflow: auto;text-align: left;white-space: break-spaces;"></code>
+
+                <hr style="margin-top: 15px;margin-bottom: 15px;">
+
+                <center>
+                    <h3 style="margin-bottom: 5px;">Price</h3>
+                </center>
+                <p style="opacity: 0.7; margin-top: 0px;">Retrieve the dataset of a particular currency conversion</p>
+                <code>/api/v1/price/:currency (example: usd)</code>
+                <code id="price" style="max-height: 125px;overflow: auto;text-align: left;white-space: break-spaces;"></code>
+
                 <hr style="margin-top: 15px;margin-bottom: 0;">
                 <br>
-                <i style="opacity: 0.75;">These stats are calculated and updated in real-time!</i>
+                <i style="opacity: 0.75;">These are live API responses, updated every 60 seconds</i>
             </div>
         </center>
 
         <center class="footer" style="height: 180px;overflow: hidden;">
             <center class="footer">
-            © <a href="https://github.com/PIVX-Labs" target="_blank">PIVX Labs</a> | <a href="/api.html">API</a> | <a href="https://discord.gg/zTScGaGtgv" target="_blank">Discord</a> | <a href="https://mypivxwallet.org/" target="_blank">Wallet</a> | <a href="https://pivx.promo/" target="_blank">Faucet</a> | <a href="https://mypivxwallet.org/pivcards/" target="_blank">PIVCards <span style="opacity: 0.75;">(Store)</span></a>
+            © <a href="https://github.com/PIVX-Labs" target="_blank">PIVX Labs</a> | <a href="/">Home</a> | <a href="https://discord.gg/zTScGaGtgv" target="_blank">Discord</a> | <a href="https://mypivxwallet.org/" target="_blank">Wallet</a> | <a href="https://pivx.promo/" target="_blank">Faucet</a> | <a href="https://mypivxwallet.org/pivcards/" target="_blank">PIVCards <span style="opacity: 0.75;">(Store)</span></a>
             </center>
         </center>
 
-        <script src="js/prices.js"></script>
+        <script src="js/api.js"></script>
     </body>
 </html>

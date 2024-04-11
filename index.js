@@ -1,136 +1,65 @@
-const express = require('express')
+// Load environment variables from .env file
+require('dotenv').config();
+
+/** An optional prefix for the service router: useful if plugging in to an existing Express App */
+const ROOT_PREFIX = process.env.ORACLE_ROOT_PREFIX || '';
+
+// Native Node modules
+const path = require('path');
+const http = require('http');
 const https = require('https');
-const app = express()
-const { dataSource } = require('./src/dataSource');
-const { readDataSource, saveDataSource } = require('./src/db');
+const fs = require('fs');
 
-const { getMarketData } = require('./src/remoteData');
-const { filterOutliers } = require('./src/dataProcessing')
+// NPM modules
+const express = require('express');
+const { redirectToHTTPS } = require('express-http-to-https');
 
-const port = 3000
-const dataSourceUpdateTime = { //listed in seconds
-    coinGecko: 30,
-    coinMarketCap: 10,
-    binance: 10,
+// Setup Express
+const app = express();
+const port = process.env.PORT || 3000;
+const sslCertPath = '/etc/letsencrypt/live/' + process.env.DOMAIN + '/';
+
+// Plug in our Router
+const router = require('./src/routes');
+app.use(router);
+
+// Serve static files from the 'public' directory, along with the root prefix if specified
+if (ROOT_PREFIX) {
+  // Prefix specified, serve from it
+  app.use(ROOT_PREFIX, express.static(path.join(__dirname, 'public')));
+} else {
+  // No prefix, serve from root
+  app.use(express.static(path.join(__dirname, 'public')));
 }
 
-app.get('/currencies', async(req, res) =>{
-    
-    //create marketData array
-    let marketData = []
-    //load marketData
-    const arrPersistentDataSource = await readDataSource();
-    for (const dataSource of arrPersistentDataSource) {
-        marketData.push(dataSource);
-    }
+// Startup
+let server;
+if (process.env.DOMAIN) {
+  // SSL options
+  const sslOptions = {
+    cert: fs.readFileSync(sslCertPath + 'fullchain.pem'),
+    key: fs.readFileSync(sslCertPath + 'privkey.pem')
+  };
 
-    let response = []
-    const average = array => array.reduce((a, b) => a + b) / array.length;
+  // Start the HTTPS server
+  server = https.createServer(sslOptions, app);
+  server.listen(443, () => {
+    console.log(`HTTPS server running on port 443 --> https://${process.env.DOMAIN}`);
+  });
 
-    //if marketData isn't set up
-    if(marketData.length == 0){
-        console.log("ran no db")
-        await getMarketData(marketData, 'coinGecko','usd');
-        await getMarketData(marketData, 'coinGeckoDirect', 'usd')
-        await getMarketData(marketData, 'binance','usd');
-        await getMarketData(marketData, 'coinMarketCap','usd');
-    }else{
-        //(list of possible currencies alongside the number)
-        marketData.forEach((marketDataLastChecked) => {
-            if(marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]){
-                //If the lastupdated time is to out of date run an async to update it
-                console.log("Updated database: " + marketDataLastChecked.dataSourceName)
-                getMarketData(marketData, marketDataLastChecked.dataSourceName,'usd');
-            }
-            //average the price
-            let aggregate = {}
-            for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
-                for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
-                    if(aggregate[ticker]){
-                        aggregate[ticker].push(tickerPrice)
-                    }else{
-                        aggregate[ticker] = []
-                        aggregate[ticker].push(tickerPrice)
-                    }
-                }
+  // Listen for HTTP requests for redirect purposes
+  const httpApp = express();
+  httpApp.use(redirectToHTTPS());
+  httpApp.listen(80);
+} else {
+  // Start the HTTP server
+  server = http.createServer(app);
+  server.listen(port, () => {
+    console.log(`HTTP server running on port ${port} --> http://localhost:${port}`);
+  });
+}
 
-            }
-            for (const [key, value] of Object.entries(aggregate)){
-                let jsonFormat = {}
-                jsonFormat.currency = key
-                //filter outliers
-                let outliers = filterOutliers(value)
-                //avg and set the price value
-                jsonFormat.value = parseFloat(average(outliers).toFixed(8))
-                jsonFormat.last_updated = marketDataLastChecked.lastUpdated
-                response.push(jsonFormat)
-            }
-        })
-    }
-    res.json(response)
+// Handle server errors
+server.on('error', (error) => {
+  console.error('Server error:', error);
 });
-
-app.use(express.static('public'));
-
-app.get('/price/:currency', async(req,res) =>{
-
-    //create marketData array
-    let marketData = []
-    //load marketData
-    const arrPersistentDataSource = await readDataSource();
-    for (const dataSource of arrPersistentDataSource) {
-        marketData.push(dataSource);
-    }
-
-    //return a single currency
-    let response = []
-    const average = array => array.reduce((a, b) => a + b) / array.length;
-
-    //if marketData isn't set up
-    if(marketData.length == 0){
-        console.log("ran no db")
-        await getMarketData(marketData, 'coinGecko','usd');
-        await getMarketData(marketData, 'coinGeckoDirect', 'usd')
-        await getMarketData(marketData, 'binance','usd');
-        await getMarketData(marketData, 'coinMarketCap','usd');
-    }else{
-        //Look through our db finding anything that matches the currency provided, Take all the values and add them up then return the avg with removed outliers
-        marketData.forEach((marketDataLastChecked) => {
-            if(marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]){
-                //If the lastupdated time is to out of date run an async to update it
-                console.log("Updated database: " + marketDataLastChecked.dataSourceName)
-                getMarketData(marketData, marketDataLastChecked.dataSourceName,req.params.currency);
-            }
-            //average the price
-            let aggregate = {}
-            for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
-                for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
-                    if(ticker == req.params.currency){
-                        if(aggregate[ticker]){
-                            aggregate[ticker].push(tickerPrice)
-                        }else{
-                            aggregate[ticker] = []
-                            aggregate[ticker].push(tickerPrice)
-                        }
-                    }
-                }
-            }
-            for (const [key, value] of Object.entries(aggregate)){
-                let jsonFormat = {}
-                jsonFormat.currency = key
-                //filter outliers
-                let outliers = filterOutliers(value)
-                //avg and set the price value
-                jsonFormat.value = parseFloat(average(outliers).toFixed(8))
-                jsonFormat.last_updated = marketDataLastChecked.lastUpdated
-
-                response.push(jsonFormat)
-            }
-        })
-    }
-    res.json(response)
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
