@@ -2,8 +2,8 @@ const https = require('https');
 const { dataSource } = require('./dataSource');
 const { readDataSource, saveDataSource } = require('./db');
 
-let coinMarketCapApiKey = ""
-let ticker = 'pivx'
+let coinMarketCapApiKey = process.env.CMC_KEY;
+let ticker = process.env.TICKER || 'pivx';
 
 
 /**

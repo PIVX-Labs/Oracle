@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PIVX Oracle | API</title>
+        <link rel="icon" type="image/png" href="favicon.png">
+        <link rel="canonical" href="https://pivxla.bz/oracle/api.html">
+        <meta name="description" content="The free PIVX Labs price aggregation API with interactive API documentation.">
+        <meta name="keywords" content="pivx, price, api, oracle, privacy, private, shield, pivxlabs, labs">
+        <meta name="author" content="PIVX Labs">
+
+        <meta name="msapplication-TileColor" content="#470e75">
+        <meta name="theme-color" content="#470e75">
+
+        <!-- OpenGraph tags -->
+        <meta property="og:title" content="Labs Oracle | API">
+        <meta property="og:description" content="The free PIVX Labs price aggregation API with interactive API documentation.">
+        <meta property="og:image" content="https://pivxla.bz/oracle/img/banner.png">
+        <meta property="og:url" content="https://pivxla.bz/oracle/api.html">
+
+        <!-- Twitter/X tags -->
+        <meta name="twitter:card" content="summary_large_image">
+
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body id="background">
+        <center id="app" class="app" style="max-width: 450px;">
+            <div style="font-family: Montserrat;">
+                <h1 class="logo-gradient" style="margin-bottom: 0;font-size: 45px;">Labs Oracle API</h1>
+            </div>
+            <div>
+            <i><code>Dive in to the free PIVX Labs pricing API</code></i>
+            <br>
+            <hr style="margin-top: 15px;margin-bottom: 15px;">
+
+            <div id="intro">
+                <center>
+                    <h3 style="margin-bottom: 5px;">Currencies</h3>
+                </center>
+                <p style="opacity: 0.7; margin-top: 0px;">Retrieve the full list of currencies converted from PIVX</p>
+                <code>/api/v1/currencies</code>
+                <code id="currencies" style="max-height: 125px;overflow: auto;text-align: left;white-space: break-spaces;"></code>
+
+                <hr style="margin-top: 15px;margin-bottom: 15px;">
+
+                <center>
+                    <h3 style="margin-bottom: 5px;">Price</h3>
+                </center>
+                <p style="opacity: 0.7; margin-top: 0px;">Retrieve the dataset of a particular currency conversion</p>
+                <code>/api/v1/price/:currency (example: usd)</code>
+                <code id="price" style="max-height: 125px;overflow: auto;text-align: left;white-space: break-spaces;"></code>
+
+                <hr style="margin-top: 15px;margin-bottom: 0;">
+                <br>
+                <i style="opacity: 0.75;">These are live API responses, updated every 60 seconds</i>
+            </div>
+        </center>
+
+        <center class="footer" style="height: 180px;overflow: hidden;">
+            <center class="footer">
+            © <a href="https://github.com/PIVX-Labs" target="_blank">PIVX Labs</a> | <a href="/">Home</a> | <a href="https://discord.gg/zTScGaGtgv" target="_blank">Discord</a> | <a href="https://mypivxwallet.org/" target="_blank">Wallet</a> | <a href="https://pivx.promo/" target="_blank">Faucet</a> | <a href="https://mypivxwallet.org/pivcards/" target="_blank">PIVCards <span style="opacity: 0.75;">(Store)</span></a>
+            </center>
+        </center>
+
+        <script src="js/api.js"></script>
+    </body>
+</html>
