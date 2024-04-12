@@ -82,7 +82,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
     }
 
     //return a single currency
-    let response = []
+    let response = {}
     const average = array => array.reduce((a, b) => a + b) / array.length;
 
     //if marketData isn't set up
@@ -128,7 +128,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
             jsonFormat.value = parseFloat(average(outliers).toFixed(8))
             jsonFormat.last_updated = oldestCheck
     
-            response.push(jsonFormat)
+            response = jsonFormat;
         }
     }
     res.json(response)
