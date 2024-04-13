@@ -14,7 +14,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
     //Get the last update from each of the data sources
     if (dataSource == 'coinGecko'){
         let coinGeckoData = await getDataCoinGecko(marketData, baseCurrency)
-        //average the price in coingecko
+        //average the price in coinGecko
         if(coinGeckoData){
         }else{
             console.log("issue with coinGeckoData: ")
@@ -23,10 +23,10 @@ async function getMarketData(marketData, dataSource, baseCurrency){
 
     if (dataSource == 'coinGeckoDirect'){
         let coinGeckoDirectData = await getDataCoinGeckoDirect(marketData, baseCurrency)
-        //average the price in coingecko
+        //average the price in coinGeckoDirect
         if(coinGeckoDirectData){
         }else{
-            console.log("issue with coinGeckoDirectData: ")
+            console.log("issue with coinGeckoDirectData: " + coinGeckoDirectData)
         }
     }
 
@@ -94,7 +94,20 @@ async function getData(url){
             });
             
             }).on("error", (err) => {
-                console.log("Error: " + err.message);
+                if(err.name == "AggregateError"){
+                    //This is most likely to occur when coingecko refuses to respond
+                    console.log("AggregateError - most likely coingecko is overloaded")
+                    //AggregateError
+                    //console.log(err instanceof AggregateError); // true
+                    //console.log(err.message); // "All Promises rejected"
+                    //console.log(err.name); // "AggregateError"
+                    //console.log(err.errors); // [ Error: "some error" ]
+                    resolve("error:Ag")
+                }else{
+                    console.log("Error: " + err);
+                }
+
+
             });
     })
 }
@@ -202,6 +215,7 @@ async function getDataCoinGecko(marketData, baseCurrency){
         return data.tickers
     }else{
         console.log("coingecko Error")
+        console.log(data)
     }
 }
 
@@ -216,33 +230,43 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
     //Check what the base currency is
     let url = 'https://api.coingecko.com/api/v3/coins/'+ticker+'?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'
     let data = await getData(url)
-    if(data.market_data){
-        if(data.market_data.current_price){
-            let coinGeckoReturnData = {}
-            coinGeckoReturnData['coinGecko'] = {}
-            for(const [key, value] of Object.entries(data.market_data.current_price)){
-                coinGeckoReturnData.coinGecko[`${key}`] = value
-            }
-            let dataFromDisk = await getMarketDataSource(marketData, "coinGeckoDirect")
-            //Check if coinGecko is in the db
-            if(dataFromDisk === undefined){
-                //if coingecko is not in the db create it
-                const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
-                //check if dataSource already exists
-                marketData.push(coinGeckoData)
-                saveDataSource(marketData)
-            }else{
-                //update coingecko
-                updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
-            }
-            //For the old endpoint will be removed soon
-            return data.tickers
-        }else{
-            console.log("coingecko Error")
-        }
+    if(data == "error:Ag"){
+        console.log("error Ag: " + Math.floor(new Date().getTime() / 1000))
+        //This will spam calls to coingecko which they count against us its better to just keep the data and try to refresh again on the next interval
+        let dataFromDisk = await getMarketDataSource(marketData, "coinGeckoDirect")
+        console.log(dataFromDisk)
+        updateDataSource(marketData, dataFromDisk, dataFromDisk.data, Math.floor(new Date().getTime() / 1000))
+        return dataFromDisk.data
+
     }else{
-        console.log("Issue with coingecko direct: ")
-        console.log(data)
+        if(data.market_data){
+            if(data.market_data.current_price){
+                let coinGeckoReturnData = {}
+                coinGeckoReturnData['coinGecko'] = {}
+                for(const [key, value] of Object.entries(data.market_data.current_price)){
+                    coinGeckoReturnData.coinGecko[`${key}`] = value
+                }
+                let dataFromDisk = await getMarketDataSource(marketData, "coinGeckoDirect")
+                //Check if coinGecko is in the db
+                if(dataFromDisk === undefined){
+                    //if coingecko is not in the db create it
+                    const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
+                    //check if dataSource already exists
+                    marketData.push(coinGeckoData)
+                    saveDataSource(marketData)
+                }else{
+                    //update coingecko
+                    updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
+                }
+                //For the old endpoint will be removed soon
+                return data.market_data.current_price
+            }else{
+                console.log("coinGeckoDirect error no current price data returned")
+            }
+        }else{
+            console.log("coinGeckoDirect error no data returned")
+            console.log(data)
+        }
     }
 }
 

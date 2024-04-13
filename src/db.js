@@ -24,7 +24,7 @@ async function saveDataSource(priceData) {
     if (!fs.existsSync('database/')) fs.mkdirSync('database');
     fs.writeFileSync('database/prices.json', JSON.stringify(priceDiskData, null, 2));
 
-    console.log('Database: Saved the state of ' + priceDiskData.length + ' to disk');
+    //console.log('Database: Saved the state of ' + priceDiskData.length + ' to disk');
 }
 
 /**
@@ -47,7 +47,7 @@ async function readDataSource() {
         priceData.push(priceDiskDataOut);
     }
 
-    console.log('DB: Parsed ' + priceDiskData.length + ' data source(s) from disk');
+    //console.log('DB: Parsed ' + priceDiskData.length + ' data source(s) from disk');
 
     // Return the orders
     return priceData;
