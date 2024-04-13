@@ -95,13 +95,8 @@ async function getData(url){
             
             }).on("error", (err) => {
                 if(err.name == "AggregateError"){
-                    //This is most likely to occur when coingecko refuses to respond
+                    //This is most likely to occur when coingecko refuses to respond mainly to the `v3/coins/pivx?localization=` endpoint
                     console.log("AggregateError - most likely coingecko is overloaded")
-                    //AggregateError
-                    //console.log(err instanceof AggregateError); // true
-                    //console.log(err.message); // "All Promises rejected"
-                    //console.log(err.name); // "AggregateError"
-                    //console.log(err.errors); // [ Error: "some error" ]
                     resolve("error:Ag")
                 }else{
                     console.log("Error: " + err);
@@ -158,8 +153,6 @@ async function getDataBinance(marketData, baseCurrency){
     //something went wrong with binance
     }else{
         //Check if binance exists in the local db
-        //if it does we have nothing to update it with because something went wrong
-        //but if not let's make sure it has a template so that it will try again in the future
         if(dataFromDisk === undefined){
             let binanceReturnData = {
                 'binance':{}
