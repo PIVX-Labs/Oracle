@@ -8,6 +8,7 @@ const { filterOutliers } = require('./dataProcessing')
 
 const dataSourceUpdateTime = { //listed in seconds
     coinGecko: 30,
+    coinGeckoDirect: 30,
     coinMarketCap: 10,
     binance: 10,
 }
@@ -40,7 +41,7 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
         marketData.forEach((marketDataLastChecked) => {
             if(marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]){
                 //If the lastupdated time is to out of date run an async to update it
-                console.log("Updated database: " + marketDataLastChecked.dataSourceName)
+                //console.log("Updated database: " + marketDataLastChecked.dataSourceName)
                 getMarketData(marketData, marketDataLastChecked.dataSourceName,'usd');
             }
             //average the price
@@ -82,7 +83,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
     }
 
     //return a single currency
-    let response = {}
+    let response = []
     const average = array => array.reduce((a, b) => a + b) / array.length;
 
     //if marketData isn't set up
@@ -128,7 +129,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async(req,res) =>{
             jsonFormat.value = parseFloat(average(outliers).toFixed(8))
             jsonFormat.last_updated = oldestCheck
     
-            response = jsonFormat;
+            response.push(jsonFormat)
         }
     }
     res.json(response)
