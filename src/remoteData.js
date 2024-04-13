@@ -216,28 +216,33 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
     //Check what the base currency is
     let url = 'https://api.coingecko.com/api/v3/coins/'+ticker+'?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'
     let data = await getData(url)
-    if(data.market_data.current_price){
-        let coinGeckoReturnData = {}
-        coinGeckoReturnData['coinGecko'] = {}
-        for(const [key, value] of Object.entries(data.market_data.current_price)){
-            coinGeckoReturnData.coinGecko[`${key}`] = value
-        }
-        let dataFromDisk = await getMarketDataSource(marketData, "coinGeckoDirect")
-        //Check if coinGecko is in the db
-        if(dataFromDisk === undefined){
-            //if coingecko is not in the db create it
-            const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
-            //check if dataSource already exists
-            marketData.push(coinGeckoData)
-            saveDataSource(marketData)
+    if(data.market_data){
+        if(data.market_data.current_price){
+            let coinGeckoReturnData = {}
+            coinGeckoReturnData['coinGecko'] = {}
+            for(const [key, value] of Object.entries(data.market_data.current_price)){
+                coinGeckoReturnData.coinGecko[`${key}`] = value
+            }
+            let dataFromDisk = await getMarketDataSource(marketData, "coinGeckoDirect")
+            //Check if coinGecko is in the db
+            if(dataFromDisk === undefined){
+                //if coingecko is not in the db create it
+                const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
+                //check if dataSource already exists
+                marketData.push(coinGeckoData)
+                saveDataSource(marketData)
+            }else{
+                //update coingecko
+                updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
+            }
+            //For the old endpoint will be removed soon
+            return data.tickers
         }else{
-            //update coingecko
-            updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
+            console.log("coingecko Error")
         }
-        //For the old endpoint will be removed soon
-        return data.tickers
     }else{
-        console.log("coingecko Error")
+        console.log("Issue with coingecko direct: ")
+        console.log(data)
     }
 }
 

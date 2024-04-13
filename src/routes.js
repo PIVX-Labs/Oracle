@@ -7,8 +7,8 @@ const { getMarketData } = require('./remoteData');
 const { filterOutliers } = require('./dataProcessing')
 
 const dataSourceUpdateTime = { //listed in seconds
-    coinGecko: 30,
-    coinGeckoDirect: 30,
+    coinGecko: 25,
+    coinGeckoDirect: 35,
     coinMarketCap: 10,
     binance: 10,
 }
