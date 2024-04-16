@@ -1,3 +1,19 @@
+// Get the current URL
+const currentURL = new URL(window.location.href);
+
+// Identify the part of the path after the domain until the first '/'
+const afterDomain = currentURL.pathname.split('/')[1];
+
+// Base URL
+let baseURL = "";
+
+// Check if the part after the domain matches the service name
+// If matches, then set that to the base URL
+if (afterDomain === "oracle") {
+    baseURL = `/${afterDomain}`;
+}
+
+
 let arrPrices = [];
 
 /**
@@ -29,7 +45,7 @@ function updateDisplay(selectedCurrency) {
 */
 async function fetchAndPopulateCurrencies() {
     try {
-        const response = await fetch('/api/v1/currencies');
+        const response = await fetch(`${baseURL}/api/v1/currencies`);
         if (!response.ok) return console.error(`HTTP error! status: ${response.status}`);
 
         arrPrices = await response.json();
