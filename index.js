@@ -13,9 +13,11 @@ const fs = require('fs');
 // NPM modules
 const express = require('express');
 const { redirectToHTTPS } = require('express-http-to-https');
+const cors = require('cors');
 
 // Setup Express
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 const sslCertPath = '/etc/letsencrypt/live/' + process.env.DOMAIN + '/';
 
