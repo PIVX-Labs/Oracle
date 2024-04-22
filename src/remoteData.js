@@ -146,7 +146,7 @@ async function getDataBinance(marketData, baseCurrency){
             saveDataSource(marketData)
         }else{
             let binanceReturnData = await getMarketDataSource(marketData, 'binance')
-            binanceReturnData.data.binance[`${baseCurrency}`] = data.price
+            binanceReturnData.data.binance[`${baseCurrency}`] = parseFloat(data.price)
             //update binance
             updateDataSource(marketData, dataFromDisk, binanceReturnData.data, Math.floor(new Date().getTime() / 1000))
         }

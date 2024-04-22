@@ -29,6 +29,9 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
     const aggregate = {}
     const aggLastUpdated = {}
     arrMarketData.forEach((marketDataLastChecked) => {
+        console.log("=========")
+        console.log(marketDataLastChecked)
+        console.log("=========")
         if (marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]) {
             // Start a data refresh if this looks outdated
             getMarketData(arrMarketData, marketDataLastChecked.dataSourceName, 'usd');
@@ -51,6 +54,10 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
             }
         }
     });
+    console.log("+++++++")
+    console.log(aggregate)
+    console.log("+++++++")
+
     // Average and format
     for (const [strCurrency, nPrice] of Object.entries(aggregate)) {
         arrResponse.push({
@@ -60,6 +67,7 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
             last_updated: aggLastUpdated[strCurrency]
         });
     }
+    console.log(arrResponse)
     res.json(arrResponse);
 });
 
@@ -79,6 +87,9 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async (req, res) => {
     const arrAggregatedPrices = [];
     let nOldestCheck = 0;
     arrMarketData.forEach((cMarketDataLastChecked) => {
+        console.log("===========")
+        console.log(cMarketDataLastChecked)
+        console.log("===========")
         if (cMarketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[cMarketDataLastChecked.dataSourceName]) {
             // Start a data refresh if this looks outdated
             console.log("Updated database: " + cMarketDataLastChecked.dataSourceName);
@@ -98,6 +109,10 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async (req, res) => {
 
     // Check we have any relevent data
     if (arrAggregatedPrices.length == 0) return res.status(400).json({ err: `The currency "${strCurrency}" either doesn't exist, or Oracle does not yet have any data for it.` });
+
+    console.log("+++++")
+    console.log(arrAggregatedPrices)
+    console.log("+++++")
 
     // Return the data!
     res.json({
