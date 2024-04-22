@@ -26,6 +26,8 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
 
     // Aggregate the prices from our various sources
     const arrResponse = [];
+    const aggregate = {}
+    const aggLastUpdated = {}
     arrMarketData.forEach((marketDataLastChecked) => {
         if (marketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[marketDataLastChecked.dataSourceName]) {
             // Start a data refresh if this looks outdated
@@ -33,28 +35,31 @@ router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
         }
 
         // Save all instances of price data
-        const aggregate = {}
+
         for (const [key, value] of Object.entries(marketDataLastChecked.data)) {
             for(const [ticker, tickerPrice] of Object.entries(marketDataLastChecked.data[key])){
                 if (aggregate[ticker]) {
                     aggregate[ticker].push(tickerPrice);
+                    if(aggLastUpdated[ticker] < marketDataLastChecked.lastUpdated){
+                        aggLastUpdated[ticker] = marketDataLastChecked.lastUpdated
+                    }
                 } else {
                     aggregate[ticker] = [];
                     aggregate[ticker].push(tickerPrice);
+                    aggLastUpdated[ticker] = marketDataLastChecked.lastUpdated
                 }
             }
         }
-
-        // Average and format
-        for (const [strCurrency, nPrice] of Object.entries(aggregate)) {
-            arrResponse.push({
-                currency: strCurrency,
-                // Perform outlier filtering, averaging, then rounding
-                value: parseFloat(average(filterOutliers(nPrice)).toFixed(8)),
-                last_updated: marketDataLastChecked.lastUpdated
-            });
-        }
     });
+    // Average and format
+    for (const [strCurrency, nPrice] of Object.entries(aggregate)) {
+        arrResponse.push({
+            currency: strCurrency,
+            // Perform outlier filtering, averaging, then rounding
+            value: parseFloat(average(filterOutliers(nPrice)).toFixed(8)),
+            last_updated: aggLastUpdated[strCurrency]
+        });
+    }
     res.json(arrResponse);
 });
 
