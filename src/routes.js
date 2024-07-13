@@ -21,6 +21,12 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
     if (!req.params.currency) return res.status(400).json({ err: 'The "currency" parameter is missing!'});
     const strCurrency = req.params.currency.toLowerCase();
 
+    // We typically start at the latest data (now)
+    const nStart = Math.abs(Number(req.query.start)) || Date.now();
+
+    // And by default, we end after 24h of data (a full day)
+    const nEnd = Math.abs(Number(req.query.end) || 86400 * 1000);
+
     // Fetch market data from disk
     const arrHistoricalMarketData = await prepareHistoricalMarketData();
     if (arrHistoricalMarketData.length == 0) {
@@ -35,9 +41,12 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
         // Save all instances of price data for this currency
         for (const [key, value] of Object.entries(cMarketDataLastChecked.data)) {
             for(const [ticker, tickerPrice] of Object.entries(cMarketDataLastChecked.data[key])){
-                if (ticker === strCurrency) {
-                    let tickerReturn = {tickerPrice: tickerPrice, timeUpdated: cMarketDataLastChecked.lastUpdated}
-                    arrAggregatedPrices.push(tickerReturn);
+                // Ensure the data is within the requested time-range
+                if (cMarketDataLastChecked.lastUpdated <= nStart && cMarketDataLastChecked.lastUpdated >= nEnd) {
+                    if (ticker === strCurrency) {
+                        let tickerReturn = {tickerPrice: tickerPrice, timeUpdated: cMarketDataLastChecked.lastUpdated}
+                        arrAggregatedPrices.push(tickerReturn);
+                    }
                 }
             }
         }
@@ -68,9 +77,6 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
     };
     
     const aggregatedTimeStampedPriceData = groupAverages(roundedArrPrices,'timeUpdated','tickerPrice')
-
-    // Check we have any relevant data
-    if (aggregatedTimeStampedPriceData.length == 0) return res.status(400).json({ err: `The currency "${strCurrency}" either doesn't exist, or Oracle does not yet have any data for it.` });
 
     // Return the data!
     res.json({
