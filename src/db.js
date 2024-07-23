@@ -1,6 +1,6 @@
 //simple JSON "database"
 const fs = require('fs');
-const { dataSource } = require('./dataSource');
+const { dataSource, historicalDataSource } = require('./dataSource');
 
 /**
  * Save or update current prices
@@ -61,9 +61,7 @@ async function saveHistoricalData(priceData){
 
 
     for (const dataSource of priceData) {
-        // Convert to JSON
-        const cDataSource = dataSource.toJSON();
-        priceDiskData.push(cDataSource);
+        priceDiskData.push(dataSource);
     }
 
     // Save list to disk (generate directory if necessary)
@@ -85,7 +83,7 @@ async function readHistoricalDataSource() {
     const priceData = [];
     for (const pDiskData of priceDiskData) {
         // Parse the Order from JSON
-        const priceDiskDataOut = dataSource.from(pDiskData);
+        const priceDiskDataOut = historicalDataSource.from(pDiskData);
 
         // Push to the Class List
         priceData.push(priceDiskDataOut);

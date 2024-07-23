@@ -49,7 +49,45 @@ class dataSource {
         return cJSONdataSource;
     }
 }
+class historicalDataSource {
+        /**
+     * Holds data from the historical data sources
+     * @param {*} 
+     * @param {*} 
+     * @param {*} 
+     */
+        constructor(ticker, tickerPrice, timeUpdated){
+            this.ticker = ticker
+    
+            this.tickerPrice = tickerPrice
+
+            this.timeUpdated = timeUpdated
+    
+        }
+        /** Return an Order class from a raw JSON of an Order */
+        static from(jsonOrder) {
+            const marketData = new historicalDataSource();
+    
+            // Insert the correct data by matching keys of the Order class
+            for (const strKey of Object.keys(marketData)) {
+                if (jsonOrder[strKey] !== undefined)
+                    marketData[strKey] = jsonOrder[strKey];
+            }
+            // Return the Order
+            return marketData;
+        }
+    
+        /** Convert the order in to a Database JSON object */
+        toJSON() {
+            /** @type {historicalDataSource} A semi-deep-cloned order intended for JSON safe storage */
+            const cJSONdataSource = { ...this };
+    
+            // Return the JSON Order
+            return cJSONdataSource;
+        }
+}
 
 module.exports = {
-    dataSource
+    dataSource,
+    historicalDataSource
 }

@@ -21,68 +21,37 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
     if (!req.params.currency) return res.status(400).json({ err: 'The "currency" parameter is missing!'});
     const strCurrency = req.params.currency.toLowerCase();
 
-    // We typically start at the latest data (now)
-    const nStart = Math.abs(Number(req.query.start)) || Date.now();
+    //Because everything else is in seconds and not mili-seconds we will convert for the nStart and nEnd
+    //Seconds is the standard when dealing in unix
+    const timeInSecondsNow = Date.now() / 1000
 
-    // And by default, we end after 24h of data (a full day)
-    const nEnd = Math.abs(Number(req.query.end) || 86400 * 1000);
+    // We typically start at the latest data (now)
+    const nStart = Math.abs(Number(req.query.start)) || timeInSecondsNow;
+
+    // And by default, we end after 24h of data (86400 seconds)
+    const nEnd = Math.abs(Number(req.query.end) || (timeInSecondsNow - 86400));
 
     // Fetch market data from disk
-    const arrHistoricalMarketData = await prepareHistoricalMarketData();
+    let arrHistoricalMarketData = await readHistoricalDataSource();
     if (arrHistoricalMarketData.length == 0) {
         console.error('Warning: Oracle has no data after multiple attempts, cannot provide data to API requests!');
         return res.status(500).json({ err: "Oracle doesn't have enough data to respond, try again later!" });
     }
 
-    // Grab all prices for the coin with timestamp
-    const arrAggregatedPrices = [];
-    arrHistoricalMarketData.forEach((cMarketDataLastChecked) => {
-
-        // Save all instances of price data for this currency
-        for (const [key, value] of Object.entries(cMarketDataLastChecked.data)) {
-            for(const [ticker, tickerPrice] of Object.entries(cMarketDataLastChecked.data[key])){
-                // Ensure the data is within the requested time-range
-                if (cMarketDataLastChecked.lastUpdated <= nStart && cMarketDataLastChecked.lastUpdated >= nEnd) {
-                    if (ticker === strCurrency) {
-                        let tickerReturn = {tickerPrice: tickerPrice, timeUpdated: cMarketDataLastChecked.lastUpdated}
-                        arrAggregatedPrices.push(tickerReturn);
-                    }
-                }
+    let returnData = []
+    arrHistoricalMarketData.forEach((historical)=>{
+        if (historical.timeUpdated <= nStart && historical.timeUpdated >= nEnd) {
+            if(historical.ticker == strCurrency){
+                returnData.push({timeUpdated: historical.timeUpdated, tickerPrice: historical.tickerPrice})
             }
         }
-    });
-
-    // Aggregate prices that are in similar timestamps
-    // TODO : FIX THIS SO THAT THE PRICE GETS AGGREGATED ONE TIME.
-    // PREFERABLY WHEN IT GETS SAVED ORIGINALLY
-
-    // Round all times by 300 seconds (or 5 minutes) so that everything can be aggregated together
-    let roundedArrPrices = arrAggregatedPrices.map(arrAggregatedPrices => ({
-            ...arrAggregatedPrices,
-            timeUpdated: Math.round(Math.floor(arrAggregatedPrices.timeUpdated/300) * 300)
-        })
-    );
-
-    // AggregateByTimeStamp
-    const groupAverages = (arr, key, val) => {
-        const specialAverage = (a, b, i, self) => a + b[val] / self.length;
-        return Object.values(
-            arr.reduce((acc, elem, i, self) => (
-                (acc[elem[key]] = acc[elem[key]] || {
-                [key]: elem[key],
-                //TODO : NEEDS TO FILTER OUTLIERS A LITTLE BETTER
-                [val]: parseFloat(self.filter((x) => x[key] === elem[key]).reduce(specialAverage, 0).toFixed(8)),
-                }),acc),{})
-        );
-    };
-    
-    const aggregatedTimeStampedPriceData = groupAverages(roundedArrPrices,'timeUpdated','tickerPrice')
+    })
 
     // Return the data!
     res.json({
         currency: strCurrency,
         // Perform outlier filtering, averaging, then rounding
-        value: aggregatedTimeStampedPriceData
+        value: returnData
     });
 })
 
@@ -167,7 +136,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async (req, res) => {
         }
     });
 
-    // Check we have any relevent data
+    // Check we have any relevant data
     if (arrAggregatedPrices.length == 0) return res.status(400).json({ err: `The currency "${strCurrency}" either doesn't exist, or Oracle does not yet have any data for it.` });
 
     // Return the data!
@@ -196,23 +165,6 @@ async function prepareMarketData() {
     }
 
     return arrMarketData;
-}
-
-async function prepareHistoricalMarketData() {
-    // Fetch market data from disk
-    let arrHistoricalMarketData = await readHistoricalDataSource();
-
-    // If there's no market data, we'll fetch it real quick before attempting to respond
-    // if (arrMarketData.length == 0) {
-    //     console.warn("Price API called without any data in DB, fetching from all sources...");
-    //     await getMarketData(arrMarketData, 'coinGecko','usd');
-    //     await getMarketData(arrMarketData, 'coinGeckoDirect', 'usd')
-    //     await getMarketData(arrMarketData, 'binance','usd');
-    //     await getMarketData(arrMarketData, 'coinMarketCap','usd');
-    //     arrMarketData = await readDataSource();
-    // }
-
-    return arrHistoricalMarketData;
 }
 
 module.exports = router;

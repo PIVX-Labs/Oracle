@@ -64,29 +64,51 @@ async function getMarketDataSource(marketData, dataSourceNamePassed){
 async function updateDataSource(marketData,dataSource,data,updateTime){
     dataSource.data = data;
     dataSource.lastUpdated = updateTime;
+
     await saveDataSource(marketData);
 
-
-    // TODO : AGGREGATE THE PRICES AND SAVE THE AGGREGATED PRICE DON'T JUST STORE IT ALL
-
-    // Check to see if historical data sources should be updated
-    // Read the lastUpdated using the dataSource param
     let arrHistoricalMarketData = await readHistoricalDataSource();
 
-    // Check through historical based on dataSource name
-    const allMatchingHistoricalValues = arrHistoricalMarketData.filter(el => el.dataSourceName === dataSource.dataSourceName)
-    
-    // Collect all last updated based on dataSource name
-    const newestAddition = Math.max(...allMatchingHistoricalValues.map(o => o.lastUpdated))
+    const newestAddition = Math.max(...arrHistoricalMarketData.map(o => o.timeUpdated))
 
-    // Check if newest last updated is more then an hour from current
     if(newestAddition < (new Date().getTime() / 1000) - 3600){
-        // Add in newest if it is.
-        console.log("new data")
-        arrHistoricalMarketData.push(dataSource)
+        // Grab all prices for the coin with timestamp
+        const arrAggregatedPrices = [];
+        marketData.forEach((cMarketDataLastChecked) => {
+            // Save all instances of price data for this currency
+            for (const [key, value] of Object.entries(cMarketDataLastChecked.data)) {
+                for(const [ticker, tickerPrice] of Object.entries(cMarketDataLastChecked.data[key])){
+                    let tickerReturn = {ticker: ticker, tickerPrice: tickerPrice}
+                    arrAggregatedPrices.push(tickerReturn);
+                }
+            }
+        });
+
+        // AggregateByTimeStamp
+        const groupAverages = (arr, key, val) => {
+            const specialAverage = (a, b, i, self) => a + b[val] / self.length;
+            return Object.values(
+                arr.reduce((acc, elem, i, self) => (
+                    (acc[elem[key]] = acc[elem[key]] || {
+                    [key]: elem[key],
+                    //TODO : NEEDS TO FILTER OUTLIERS A LITTLE BETTER
+                    [val]: parseFloat(self.filter((x) => x[key] === elem[key]).reduce(specialAverage, 0).toFixed(8)),
+                    }),acc),{})
+            );
+        };
+
+        //We need to group by ticker
+        const aggregateByTicker = groupAverages(arrAggregatedPrices,'ticker','tickerPrice')
+        let curTimeForSettingThePriceData = Math.floor(new Date().getTime() / 1000)
+        aggregateByTicker.forEach((aggdata) =>{
+            //Add in the "rounded time" and the dataSource
+            aggdata.timeUpdated = curTimeForSettingThePriceData
+        })
+
+
+        arrHistoricalMarketData.push(...aggregateByTicker)
         await saveHistoricalData(arrHistoricalMarketData)
-    }else{
-        console.log("not old enough")
+        console.log("Updated Historical Data")
     }
 }
 
