@@ -64,10 +64,146 @@ a:hover {
     padding: 25px 50px;
     margin-left: 15px;
     margin-right: 15px;
-    box-shadow: 7px 7px 33px 0px #00000026;
+    box-shadow: 0 0 5px #9046B1, 0 0 10px #9046B1, 0 0 15px #9046B1, 0 0 20px #9046B1;
     border: 1px solid #9046B1;
     transition: 0.4s;
+    margin-bottom: 50px; /* Add this line */
 }
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 300px;
+}
+
+.dropdown-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #470e75;
+    border-radius: 8px;
+    background: rgba(128, 0, 128, 0.3) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4H4z" fill="%23fff"/></svg>') no-repeat right 10px center;
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Adjusted gap between icon and text */
+}
+
+.dropdown-btn img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0; /* Remove margin to reduce gap */
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #d9a6f5;
+    min-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    overflow-y: auto; /* Allow scrollbar */
+    max-height: 200px; /* Adjust as needed */
+    box-sizing: border-box;
+    right: 0;
+}
+
+.dropdown-content a {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #6a0dad;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.dropdown-content a:hover {
+    background-color: #d09ff1; /* Slightly darker light purple for hover effect */
+}
+
+.dropdown-content img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px; /* Space between icon and text in dropdown */
+}
+
+.dropdown-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+    background-color: #9405a1;
+    border-radius: 4px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.custom-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Ensure dropdown fits within the screen */
+@media (max-width: 600px) {
+    .dropdown-content {
+        left: 0;
+        right: 0;
+        transform: none; /* Adjust dropdown position for small screens */
+    }
+}
+
+/* Show dropdown content below button after selection */
+.dropdown-content.show-below {
+    top: 100%;
+    bottom: auto;
+}
+
+.neon-purple-divider {
+    border: none;
+    height: 2px; 
+    background: linear-gradient(90deg, #c3b0f0, #f5b7f3);
+    margin: 15px 0; 
+}
+
+.conversion-box {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.conversion-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #a505a5;
+    border-radius: 5px;
+    width: 150px;
+    margin: 0 10px; /* Adds space between the inputs */
+    text-align: center;
+}
+
+.swap-button {
+    cursor: pointer;
+    font-size: 24px;
+    padding: 10px;
+    background-color: #a505a5;
+    color: white;
+    border-radius: 50%; /* Makes the button circular */
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px; /* Ensures the button is circular */
+    height: 50px; /* Ensures the button is circular */
+    margin: 0 10px; /* Adds space around the swap button */
+}
+
 
 .blurred {
     filter: blur(10px);
