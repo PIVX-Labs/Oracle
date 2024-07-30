@@ -64,7 +64,7 @@ a:hover {
     padding: 25px 50px;
     margin-left: 15px;
     margin-right: 15px;
-    box-shadow: 0 0 5px #9046B1, 0 0 10px #9046B1, 0 0 15px #9046B1, 0 0 20px #9046B1;
+    box-shadow: 7px 7px 33px 0px #00000026;
     border: 1px solid #9046B1;
     transition: 0.4s;
     margin-bottom: 50px; /* Add this line */
@@ -150,6 +150,12 @@ a:hover {
     display: block;
 }
 
+.timestamp {
+    font-size: smaller;
+    font-family: monospace;
+    opacity: 0.75;
+}
+
 /* Ensure dropdown fits within the screen */
 @media (max-width: 600px) {
     .dropdown-content {
@@ -163,13 +169,6 @@ a:hover {
 .dropdown-content.show-below {
     top: 100%;
     bottom: auto;
-}
-
-.neon-purple-divider {
-    border: none;
-    height: 2px; 
-    background: linear-gradient(90deg, #c3b0f0, #f5b7f3);
-    margin: 15px 0; 
 }
 
 .conversion-box {
