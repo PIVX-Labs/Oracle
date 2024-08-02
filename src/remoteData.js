@@ -4,7 +4,12 @@ const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistorical
 
 let coinMarketCapApiKey = process.env.CMC_KEY;
 let ticker = process.env.TICKER || 'pivx';
-
+const dataSourceUpdateTime = { //listed in seconds
+    coinGecko: 63,
+    coinGeckoDirect: 70,
+    coinMarketCap: 10,
+    binance: 10,
+}
 
 /**
  * Checks the time from the last checks of our data sources updates them if need be, and returns the data the users need
@@ -307,6 +312,33 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
         }
     }
 }
+
+//Auto check the data
+async function autoCheckData(){
+    console.log("Ran Auto Checker")
+    // Fetch market data from disk
+    let arrMarketData = await readDataSource();
+    if (arrMarketData.length == 0) {
+        console.warn("Price API called without any data in DB, fetching from all sources...");
+        await getMarketData(arrMarketData, 'coinGecko','usd');
+        await getMarketData(arrMarketData, 'coinGeckoDirect', 'usd')
+        await getMarketData(arrMarketData, 'binance','usd');
+        await getMarketData(arrMarketData, 'coinMarketCap','usd');
+        arrMarketData = await readDataSource();
+    }
+    // Aggregate the prices from our various sources
+    arrMarketData.forEach((cMarketDataLastChecked) => {
+        if (cMarketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[cMarketDataLastChecked.dataSourceName]) {
+            // Start a data refresh if this looks outdated
+            console.log("Updated database: " + cMarketDataLastChecked.dataSourceName);
+            getMarketData(arrMarketData, cMarketDataLastChecked.dataSourceName, 'usd');
+        }
+    });
+}
+
+//Check even if no visitors every 5 minutes
+setInterval(() => {autoCheckData();}, 300000);
+
 
 module.exports = {
     getMarketData,
