@@ -15,7 +15,7 @@ let strSelectedCurrency = 'btc';
  */
 
 /**
- * @type {Price[]} Rates
+ * @type {Price[]} A cache of all currencies valued against PIVX
  */
 let arrPrices = [];
 
