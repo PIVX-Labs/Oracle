@@ -1,56 +1,52 @@
 // DOM Cache
-const dropdownContent = document.querySelector('.dropdown-content');
-const dropdownBtn = document.querySelector('.dropdown-btn');
-const priceBox = document.getElementById('price');
-const timestamp = document.getElementById('price-updated');
+const domDropdownContent = document.querySelector('.dropdown-content');
+const domDropdownBtn = document.querySelector('.dropdown-btn');
+const domPrice = document.getElementById('price');
+const domTimestamp = document.getElementById('price-updated');
 
 // Globals
-let selectedCurrency = null;
+let strSelectedCurrency = 'btc';
+
+/**
+ * @typedef {Object} Price
+ * @property {string} currency - The currency type (e.g: 'btc')
+ * @property {number} value -  The value of the currency
+ * @property {number} last_updated - The timestamp (Unix) the value was last updated
+ */
+
+/**
+ * @type {Price[]} Rates
+ */
 let arrPrices = [];
 
-// Get the current URL
-const currentURL = new URL(window.location.href);
-
-// Identify the part of the path after the domain until the first '/'
-const afterDomain = currentURL.pathname.split('/')[1];
-
-// Base URL
-let baseURL = "";
-
-// Check if the part after the domain matches the service name
-// If matches, then set that to the base URL
-if (afterDomain === "oracle") {
-    baseURL = `/${afterDomain}`;
-}
-
-// Get all links
-const links = document.querySelectorAll('a');
-
-// Regex that tests if URL is not external
-const regex = new RegExp('^(http://|https://|ftp://|\/\/)');
-
-// Iterate over each link and replace href if not external
-links.forEach(link => {
-    const originalHref = link.getAttribute('href');
-    // Check if originalHref contains baseURL and is not external
-    if (!originalHref.startsWith(baseURL) && !regex.test(originalHref)) {
-        // Prepend baseURL to the original href only when it's not already there and not an external URL
-        link.setAttribute('href', `${baseURL}${originalHref}`);
-    }
-});
-
+/** 
+ * Converts a Unix Epoch to a Locale Time String
+ * @param {number} epochTime - the unix epoch
+ */
 function fromEpochToDate(epochTime) {
     return new Date(epochTime * 1000).toLocaleTimeString();
 }
 
-function updateDisplay() {
-    const priceElement = document.getElementById('price');
-    const lastUpdatedElement = document.getElementById('price-updated');
-
-    priceElement.textContent = `${selectedCurrency.value} ${selectedCurrency.currency.toUpperCase()}`;
-    lastUpdatedElement.textContent = `Last updated at ${fromEpochToDate(selectedCurrency.last_updated)}`;
+/** Fetch a currency from cache by name */
+function getCurrency(strCurrency) {
+    return arrPrices.find(a => a.currency === strCurrency);
 }
 
+/** Render the state */
+function updateDisplay() {
+    // Update the Price UI
+    const cCurrency = getCurrency(strSelectedCurrency);
+    domPrice.innerText = `${cCurrency.value} ${cCurrency.currency.toUpperCase()}`;
+    domTimestamp.innerText = `Last updated at ${fromEpochToDate(cCurrency.last_updated)}`;
+
+    // Update the calculator "Currency" placeholder
+    domCurInput.placeholder = cCurrency.currency.toUpperCase();
+
+    // If a PIV value is specified, update the conversion too
+    if (domPIVInput.value) convertCurrency(domPIVInput.value, strSelectedCurrency, true);
+}
+
+/** Fetch and cache all necessary data */
 async function fetchAndPopulateCurrencies() {
     try {
         const response = await fetch(`${baseURL}/api/v1/currencies`);
@@ -59,15 +55,17 @@ async function fetchAndPopulateCurrencies() {
         // All data for all currencies available gets fetched and cached
         arrPrices = await response.json();
 
+        // If a currency is selected, re-render it's data!
+        if (strSelectedCurrency) updateDisplay();
+
         // UI listener for selecting currencies
-        dropdownContent.addEventListener('click', function (e) {
+        domDropdownContent.addEventListener('click', function (e) {
             const target = e.target.closest('a');
             if (target) {
                 e.preventDefault();
-                selectedCurrency = arrPrices.find(a => a.currency === target.dataset.value);
-                dropdownBtn.innerHTML = target.innerHTML;
+                strSelectedCurrency = target.dataset.value;
+                domDropdownBtn.innerHTML = target.innerHTML;
                 updateDisplay();
-                updateConversionTickers();
             }
         });
     } catch (error) {

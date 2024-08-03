@@ -98,6 +98,10 @@ a:hover {
     width: 20px;
     height: 20px;
     margin-right: 0; /* Remove margin to reduce gap */
+
+    /* Temp: invert the image colour from black to white, looks better */
+    filter: invert(100%);
+    -webkit-filter: invert(100%);
 }
 
 .dropdown-content {
@@ -174,24 +178,30 @@ a:hover {
 .conversion-box {
     display: flex;
     align-items: center;
-    margin-top: 20px;
 }
 
 .conversion-input {
     padding: 10px;
     font-size: 16px;
-    border: 2px solid #a505a5;
+    border: 1px solid #6713aa;
     border-radius: 5px;
     width: 150px;
     margin: 0 10px; /* Adds space between the inputs */
     text-align: center;
 }
 
+.conversion-input:hover {
+    border-color: #8f19cf;
+}
+
+.conversion-input:focus {
+    border-color: #c24eff;
+}
+
 .swap-button {
-    cursor: pointer;
+    cursor: default;
     font-size: 24px;
     padding: 10px;
-    background-color: #a505a5;
     color: white;
     border-radius: 50%; /* Makes the button circular */
     border: none;
@@ -296,6 +306,11 @@ button {
 }
 
 button:hover {
+    background-color: #9b46c733;
+    border-color: #c24eff;
+}
+
+button:focus {
     background-color: #9b46c733;
     border-color: #c24eff;
 }

@@ -38,7 +38,10 @@
 
             <div>
                 <div class="custom-dropdown">
-                    <button class="dropdown-btn">Select Currency</button>
+                    <button class="dropdown-btn" data-value="btc">
+                        <img src="img/bitcoin.png" alt="BTC">
+                        (BTC) Bitcoin
+                    </button>
                     <div class="dropdown-content">
                         <a href="#" data-value="btc">
                             <img src="img/bitcoin.png" alt="BTC">
@@ -243,12 +246,11 @@
                     </div>
                 </div>
                     <hr>
-                    <br>
-                    <i style="opacity: 0.75;">These stats are calculated and updated in real-time!</i> 
+                    <h3 style="margin-bottom: 0;">Calculator</h3>
                     <div class="conversion-box">
                         <input type="number" id="piv-amount" placeholder="PIV" class="conversion-input">
                         <span id="swap-button" class="swap-button">⇆</span>
-                        <input type="number" id="selected-currency-amount" placeholder="Currency" class="conversion-input" readonly>
+                        <input type="number" id="selected-currency-amount" placeholder="..." class="conversion-input">
                     </div>
                 </div>
             </center>
@@ -260,6 +262,7 @@
             </center>
         </center>
 
+        <script src="js/app.js"></script>
         <script src="js/prices.js"></script>
         <script src="js/currencybtn.js"></script>
         <script src="js/calc.js"></script>    

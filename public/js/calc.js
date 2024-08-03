@@ -1,34 +1,36 @@
-const pivInput = document.getElementById('piv-amount');
-const currencyInput = document.getElementById('selected-currency-amount');
-const swapButton = document.getElementById('swap-button');
-let isPivToCurrency = true;
+/** @type {HTMLInputElement} */
+const domPIVInput = document.getElementById('piv-amount');
 
-pivInput.addEventListener('input', function () {
-        console.log('PIV to Currency conversion:', pivInput.value, selectedCurrency);
-        convertCurrency(pivInput.value, selectedCurrency, isPivToCurrency);
-});
+/** @type {HTMLInputElement} */
+const domCurInput = document.getElementById('selected-currency-amount');
 
-currencyInput.addEventListener('input', function () {
-        console.log('Currency to PIV conversion:', currencyInput.value, selectedCurrency);
-        convertCurrency(currencyInput.value, selectedCurrency, isPivToCurrency);
-});
+// Calculator input listeners
+domPIVInput.addEventListener('input', () => convertCurrency(domPIVInput.value, strSelectedCurrency, true));
+domCurInput.addEventListener('input', () => convertCurrency(domCurInput.value, strSelectedCurrency, false));
 
-swapButton.addEventListener('click', function () {
-    isPivToCurrency = !isPivToCurrency;
-    pivInput.value = '';
-    currencyInput.value = '';
-    updateConversionTickers();
-});
+/**
+ * Converts and renders the given PIVX/Currency pair
+ * @param {number} amount - the amount of PIV or Currency
+ * @param {string} currency - the ticker of the Currency we're converting with
+ * @param {boolean} toCurrency - `true` if converting from PIV to `currency`, `false` if converting from `currency` to PIV
+ */
+function convertCurrency(amount, currency, toCurrency = true) {
+    const cCurrency = getCurrency(currency);
+    if (!cCurrency) return;
 
-function updateConversionTickers() {
-    pivInput.placeholder = isPivToCurrency ? 'PIV' : selectedCurrency.currency.toUpperCase();
-    currencyInput.placeholder = isPivToCurrency ? selectedCurrency.currency.toUpperCase() : 'PIV';
+    if (toCurrency) {
+        domCurInput.value = n(amount * cCurrency.value) || ''
+    } else {
+        domPIVInput.value = n(amount / cCurrency.value) || '';
+    }
 }
 
-function convertCurrency(amount, currency, isPivToCurrency) {
-    if (isPivToCurrency) {
-        currencyInput.value = (amount * currency.value).toFixed(8);
-    } else {
-        pivInput.value = (amount / currency.value).toFixed(8);
-    }
+/**
+ * Efficiently round a number to the nearest specified decimal place
+ * @param {Number} amount 
+ * @param {Number} decimals - defaults to 8
+ */
+function n(amount, decimals = 8) {
+    const factor = 10 ** decimals;
+    return Math.round(amount * factor) / factor;
 }
