@@ -3,9 +3,11 @@ const domDropdownContent = document.querySelector('.dropdown-content');
 const domDropdownBtn = document.querySelector('.dropdown-btn');
 const domPrice = document.getElementById('price');
 const domTimestamp = document.getElementById('price-updated');
+const domPriceChart = document.getElementById('price-chart');
 
 // Globals
 let strSelectedCurrency = 'btc';
+let priceChart = null;
 
 /**
  * @typedef {Object} Price
@@ -19,12 +21,31 @@ let strSelectedCurrency = 'btc';
  */
 let arrPrices = [];
 
+/**
+ * The historical price of the current selected currency
+ */
+let arrHistorical = []
+
 /** 
  * Converts a Unix Epoch to a Locale Time String
  * @param {number} epochTime - the unix epoch
  */
 function fromEpochToDate(epochTime) {
     return new Date(epochTime * 1000).toLocaleTimeString();
+}
+
+/**
+ * Convert Unix timestamp to time in format HH:MM.
+ *
+ * @param {number} ts - Unix timestamp.
+ * @returns {string} The time in format HH:MM.
+ */
+function fromEpochtoTime(ts) {
+    const date = new Date(ts * 1000);
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}`;
 }
 
 /** Fetch a currency from cache by name */
@@ -44,7 +65,39 @@ function updateDisplay() {
 
     // If a PIV value is specified, update the conversion too
     if (domPIVInput.value) convertCurrency(domPIVInput.value, strSelectedCurrency, true);
+
+    // Update chart data
+    updatePriceChart();
 }
+
+/** Render the Price Chart */
+async function updatePriceChart() {
+    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}`);
+    if (chartRes.ok) {
+        arrHistorical = (await chartRes.json()).value;
+
+        // Convert the historical data in to Chart Data
+        priceChart.data.labels = [];
+        priceChart.data.datasets[0] = {
+            data: [],
+            fill: false,
+            borderColor: "white",
+            lineTension: 0.2,
+            borderWidth: 4
+        };
+        for (const cPoint of arrHistorical) {
+            priceChart.data.labels.push(fromEpochtoTime(cPoint.timeUpdated));
+            priceChart.data.datasets[0].data.push(cPoint.tickerPrice);
+        }
+
+        // TODO: remove the 'none' to allow animated updating post-init... but find a way to make it smooth
+        priceChart.update(fFirstChartRender ? '' : 'none');
+        fFirstChartRender = false;
+    }
+}
+
+/** A flag to determine if this is the first chart render */
+let fFirstChartRender = true;
 
 /** Fetch and cache all necessary data */
 async function fetchAndPopulateCurrencies() {
@@ -73,10 +126,44 @@ async function fetchAndPopulateCurrencies() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
     // Fetch and populate the currencies every 5 seconds
     setInterval(fetchAndPopulateCurrencies, 5000);
 
+    // Prepare the chart context
+    priceChart = new Chart(domPriceChart, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    ticks: {
+                        source: 'data'
+                    },
+                    distribution: 'series',
+                    padding: 0,
+                },
+                y: {
+                    drawBorder: false,
+                    display: false,
+                    padding: 0
+                }
+            }
+        }
+    });
+
     // With one initial fetch on page load
-    fetchAndPopulateCurrencies();
+    await fetchAndPopulateCurrencies();
 });
