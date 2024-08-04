@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { dataSource } = require('./dataSource');
-const { readDataSource, saveDataSource } = require('./db');
+const { readDataSource, readHistoricalDataSource, saveDataSource } = require('./db');
 
 const { getMarketData } = require('./remoteData');
 const { filterOutliers } = require('./dataProcessing')
@@ -15,6 +15,45 @@ const dataSourceUpdateTime = { //listed in seconds
 
 /** An optional prefix for the service router: useful if plugging in to an existing Express App */
 const ROOT_PREFIX = process.env.ORACLE_ROOT_PREFIX || '';
+
+router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
+    // Require a currency parameter
+    if (!req.params.currency) return res.status(400).json({ err: 'The "currency" parameter is missing!'});
+    const strCurrency = req.params.currency.toLowerCase();
+
+    //Because everything else is in seconds and not mili-seconds we will convert for the nStart and nEnd
+    //Seconds is the standard when dealing in unix
+    const timeInSecondsNow = Date.now() / 1000
+
+    // We typically start at the latest data (now)
+    const nStart = Math.abs(Number(req.query.start)) || timeInSecondsNow;
+
+    // And by default, we end after 24h of data (86400 seconds)
+    const nEnd = Math.abs(Number(req.query.end) || (timeInSecondsNow - 86400));
+
+    // Fetch market data from disk
+    let arrHistoricalMarketData = await readHistoricalDataSource();
+    if (arrHistoricalMarketData.length == 0) {
+        console.error('Warning: Oracle has no data after multiple attempts, cannot provide data to API requests!');
+        return res.status(500).json({ err: "Oracle doesn't have enough data to respond, try again later!" });
+    }
+
+    let returnData = []
+    arrHistoricalMarketData.forEach((historical)=>{
+        if (historical.timeUpdated <= nStart && historical.timeUpdated >= nEnd) {
+            if(historical.ticker == strCurrency){
+                returnData.push({timeUpdated: historical.timeUpdated, tickerPrice: historical.tickerPrice})
+            }
+        }
+    })
+
+    // Return the data!
+    res.json({
+        currency: strCurrency,
+        // Perform outlier filtering, averaging, then rounding
+        value: returnData
+    });
+})
 
 router.get(ROOT_PREFIX + '/api/v1/currencies', async(req, res) =>{
     // Fetch market data from disk
@@ -97,7 +136,7 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async (req, res) => {
         }
     });
 
-    // Check we have any relevent data
+    // Check we have any relevant data
     if (arrAggregatedPrices.length == 0) return res.status(400).json({ err: `The currency "${strCurrency}" either doesn't exist, or Oracle does not yet have any data for it.` });
 
     // Return the data!
