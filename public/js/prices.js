@@ -93,6 +93,11 @@ async function updatePriceChart() {
             priceChart.data.datasets[0].data.push(cPoint.value);
         }
 
+        // Push "now" in to the chart, to make it completely real-time
+        const cCurrency = getCurrency(strSelectedCurrency);
+        priceChart.data.labels.push('Now');
+        priceChart.data.datasets[0].data.push(cCurrency.value);
+
         // TODO: remove the 'none' to allow animated updating post-init... but find a way to make it smooth
         priceChart.update(fFirstChartRender ? '' : 'none');
         fFirstChartRender = false;
