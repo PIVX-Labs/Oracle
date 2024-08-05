@@ -48,9 +48,15 @@ function fromEpochtoTime(ts) {
     return `${hours}:${minutes}`;
 }
 
-/** Fetch a currency from cache by name */
+/** Fetch a currency from cache by name, as well as merged with the local dataset */
 function getCurrency(strCurrency) {
-    return arrPrices.find(a => a.currency === strCurrency);
+    const cAPICurrency = arrPrices.find(a => a.currency === strCurrency);
+    const cLocalCurrency = arrCurrencyData.find(a => a.ticker === strCurrency);
+    if (cLocalCurrency) {
+        return { ...cAPICurrency, ...cLocalCurrency, hasAdditionalData: true};
+    } else {
+        return { ...cAPICurrency, hasAdditionalData: false };
+    }
 }
 
 /** Render the state */
@@ -65,6 +71,22 @@ function updateDisplay() {
 
     // If a PIV value is specified, update the conversion too
     if (domPIVInput.value) convertCurrency(domPIVInput.value, strSelectedCurrency, true);
+
+    // Update the "currency dropdown" list
+    let strDropdownHTML = ``;
+    for (const cCurrency of arrPrices.map(a => getCurrency(a.currency))) {
+        // We'll only render currencies included in currencies.js (i.e: currencies with additional data)
+        if (!cCurrency.hasAdditionalData) continue;
+
+        // Render this currency in the HTML string
+        strDropdownHTML += `
+            <a data-value="${cCurrency.ticker}">
+                <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
+                (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
+            </a>
+        `;
+    }
+    domDropdownContent.innerHTML = strDropdownHTML;
 
     // Update chart data
     updatePriceChart();
@@ -126,11 +148,13 @@ async function fetchAndPopulateCurrencies() {
                 e.preventDefault();
                 strSelectedCurrency = target.dataset.value;
                 domDropdownBtn.innerHTML = target.innerHTML;
+                domDropdownContent.style.display = 'none';
                 updateDisplay();
             }
         });
     } catch (error) {
-        console.log('Fetching failed: ', error.message);
+        console.error('Fetching failed:');
+        console.error(error);
     }
 }
 
@@ -174,4 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // With one initial fetch on page load
     await fetchAndPopulateCurrencies();
+
+    // Once the dropdown is populated, it's safe to enable the listeners!
+    setupDropdownListeners();
 });

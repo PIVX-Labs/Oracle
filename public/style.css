@@ -119,6 +119,7 @@ a:hover {
 }
 
 .dropdown-content a {
+    cursor: pointer;
     display: flex;
     align-items: center;
     padding: 10px;
