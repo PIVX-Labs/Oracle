@@ -76,7 +76,7 @@ async function updatePriceChart() {
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
-        // Convert the historical data in to Chart Data
+        // Completely reset chart data (not efficient, and hard to animate, we should rather pop/shift in the future)
         priceChart.data.labels = [];
         priceChart.data.datasets[0] = {
             data: [],
@@ -85,8 +85,11 @@ async function updatePriceChart() {
             lineTension: 0.2,
             borderWidth: 4
         };
+        // Convert the historical data in to Chart Data
         for (const cPoint of arrHistorical) {
+            // Push the "Time" label of each data point
             priceChart.data.labels.push(fromEpochtoTime(cPoint.timestamp));
+            // Push the value (price) of each data point
             priceChart.data.datasets[0].data.push(cPoint.value);
         }
 
