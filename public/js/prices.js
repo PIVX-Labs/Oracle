@@ -74,7 +74,7 @@ function updateDisplay() {
 async function updatePriceChart() {
     const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}`);
     if (chartRes.ok) {
-        arrHistorical = (await chartRes.json()).value;
+        arrHistorical = await chartRes.json();
 
         // Convert the historical data in to Chart Data
         priceChart.data.labels = [];
@@ -86,8 +86,8 @@ async function updatePriceChart() {
             borderWidth: 4
         };
         for (const cPoint of arrHistorical) {
-            priceChart.data.labels.push(fromEpochtoTime(cPoint.timeUpdated));
-            priceChart.data.datasets[0].data.push(cPoint.tickerPrice);
+            priceChart.data.labels.push(fromEpochtoTime(cPoint.timestamp));
+            priceChart.data.datasets[0].data.push(cPoint.value);
         }
 
         // TODO: remove the 'none' to allow animated updating post-init... but find a way to make it smooth

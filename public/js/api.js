@@ -15,6 +15,12 @@ async function fetchAndPopulateCurrencies() {
         if (!resPrice.ok) return console.error(`HTTP error! status: ${resPrice.status}`);
         const arrPrices = await resPrice.json();
         document.getElementById('price').innerHTML = JSON.stringify(arrPrices, null, 4);
+
+        // Update the Historical API example
+        const resHistorical = await fetch(`${baseURL}/api/v1/historical/usd`);
+        if (!resHistorical.ok) return console.error(`HTTP error! status: ${resHistorical.status}`);
+        const arrHistorical = await resHistorical.json();
+        document.getElementById('historical').innerHTML = JSON.stringify(arrHistorical, null, 4);
     } catch (error) {
         console.log('Fetching failed: ', error.message);
     }
