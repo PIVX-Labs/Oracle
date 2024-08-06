@@ -124,8 +124,12 @@ async function updatePriceChart() {
         priceChart.data.labels.push('Now');
         priceChart.data.datasets[0].data.push(cCurrency.value);
 
-        // TODO: remove the 'none' to allow animated updating post-init... but find a way to make it smooth
-        priceChart.update(fFirstChartRender ? '' : 'none');
+        // Update the chart and animate the transition
+        priceChart.update({
+            duration: 800, // Animation duration in milliseconds
+            easing: 'easeInOutQuad' // Animation easing function
+        });
+
         fFirstChartRender = false;
     }
 }
