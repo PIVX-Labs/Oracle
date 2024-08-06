@@ -1,6 +1,8 @@
 // DOM Cache
-const domDropdownContent = document.querySelector('.dropdown-content');
+const domDropdownContainer = document.getElementById('dropdown-container');
+const domDropdownContent = document.getElementById('dropdown-content');
 const domDropdownBtn = document.querySelector('.dropdown-btn');
+const domDropdownSearch = document.getElementById('dropdown-search');
 const domPrice = document.getElementById('price');
 const domTimestamp = document.getElementById('price-updated');
 const domPriceChart = document.getElementById('price-chart');
@@ -47,6 +49,28 @@ function getCurrency(strCurrency) {
     }
 }
 
+/** Render the currency list, including any search query */
+function updateCurrencyList() {
+    let strDropdownHTML = ``;
+    for (const cCurrency of arrPrices.map(a => getCurrency(a.currency))) {
+        // We'll only render currencies included in currencies.js (i.e: currencies with additional data)
+        if (!cCurrency.hasAdditionalData) continue;
+
+        // We'll also only render currencies searched for, if a search is active
+        const strSearch = domDropdownSearch.value.toLowerCase();
+        if (strSearch && !cCurrency.ticker.includes(strSearch) && !cCurrency.name.toLowerCase().includes(strSearch)) continue;
+
+        // Render this currency in the HTML string
+        strDropdownHTML += `
+            <a data-value="${cCurrency.ticker}">
+                <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
+                (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
+            </a>
+        `;
+    }
+    domDropdownContent.innerHTML = strDropdownHTML;
+}
+
 /** Render the state */
 function updateDisplay() {
     // Update the Price UI
@@ -61,20 +85,7 @@ function updateDisplay() {
     if (domPIVInput.value) convertCurrency(domPIVInput.value, strSelectedCurrency, true);
 
     // Update the "currency dropdown" list
-    let strDropdownHTML = ``;
-    for (const cCurrency of arrPrices.map(a => getCurrency(a.currency))) {
-        // We'll only render currencies included in currencies.js (i.e: currencies with additional data)
-        if (!cCurrency.hasAdditionalData) continue;
-
-        // Render this currency in the HTML string
-        strDropdownHTML += `
-            <a data-value="${cCurrency.ticker}">
-                <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
-                (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
-            </a>
-        `;
-    }
-    domDropdownContent.innerHTML = strDropdownHTML;
+    updateCurrencyList();
 
     // Update chart data
     updatePriceChart();
@@ -129,8 +140,6 @@ async function updatePriceChart() {
             duration: 800, // Animation duration in milliseconds
             easing: 'easeInOutQuad' // Animation easing function
         });
-
-        fFirstChartRender = false;
     }
 }
 
@@ -139,9 +148,6 @@ function uiChangeTimeScale(evt) {
     timeScale = evt.value;
     updatePriceChart();
 }
-
-/** A flag to determine if this is the first chart render */
-let fFirstChartRender = true;
 
 /** Fetch and cache all necessary data */
 async function fetchAndPopulateCurrencies() {
@@ -162,7 +168,7 @@ async function fetchAndPopulateCurrencies() {
                 e.preventDefault();
                 strSelectedCurrency = target.dataset.value;
                 domDropdownBtn.innerHTML = target.innerHTML;
-                domDropdownContent.style.display = 'none';
+                domDropdownContainer.style.display = 'none';
                 updateDisplay();
             }
         });
@@ -181,7 +187,7 @@ function setupDropdownListeners() {
             e.preventDefault();
             strSelectedCurrency = target.dataset.value;
             domDropdownBtn.innerHTML = target.innerHTML;
-            domDropdownContent.style.display = 'none';
+            domDropdownContainer.style.display = 'none';
             updateDisplay();
         }
     });
@@ -262,6 +268,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // With one initial fetch on page load
     await fetchAndPopulateCurrencies();
+
+    // For the multi-cultural funsies, we'll populate the search placeholder with a random currency...
+    domDropdownSearch.placeholder = arrCurrencyData[Math.floor(Math.random() * arrCurrencyData.length + 1)].name + '...';
 
     // Once the dropdown is populated, it's safe to enable the listeners!
     setupDropdownListeners();

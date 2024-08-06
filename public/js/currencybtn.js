@@ -1,6 +1,10 @@
 function setupDropdownListeners() {
     document.querySelector('.dropdown-btn').addEventListener('click', () => {
-        domDropdownContent.style.display = domDropdownContent.style.display === 'block' ? 'none' : 'block';
+        domDropdownContainer.style.display = domDropdownContainer.style.display === 'block' ? 'none' : 'block';
+        // If the dropdown is opened, focus the cursor on the search input
+        if (domDropdownContainer.style.display === 'block') {
+            domDropdownSearch.focus();
+        }
     });
 
     document.querySelectorAll('.dropdown-content a').forEach(item => {

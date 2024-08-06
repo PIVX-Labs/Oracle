@@ -41,11 +41,15 @@
                     <img src="img/btc.png" alt="BTC">
                     (BTC) Bitcoin
                 </button>
-                <div class="dropdown-content"></div>
+                <div id="dropdown-container" class="dropdown-content">
+                    <input id="dropdown-search" class="conversion-input" oninput="updateCurrencyList()" style="color: black;" type="text">
+                    <div id="dropdown-content"></div>
+                </div>
             </div>
         </div>
 
         <canvas id="price-chart" height="120px"></canvas>
+
         <!-- Time Scale Selector -->
         <div class="time-scale-selector">
             <label for="time-scale">Select Time Scale:</label>
