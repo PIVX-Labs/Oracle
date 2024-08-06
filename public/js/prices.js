@@ -29,25 +29,11 @@ let arrPrices = [];
 let arrHistorical = [];
 
 /** 
- * Converts a Unix Epoch to a Locale Time String
+ * Converts a Unix Epoch to a Locale Date String
  * @param {number} epochTime - the unix epoch
  */
 function fromEpochToDate(epochTime) {
-    return new Date(epochTime * 1000).toLocaleTimeString();
-}
-
-/**
- * Convert Unix timestamp to time in format HH:MM.
- *
- * @param {number} ts - Unix timestamp.
- * @returns {string} The time in format HH:MM.
- */
-function fromEpochtoTime(ts) {
-    const date = new Date(ts * 1000);
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-
-    return `${hours}:${minutes}`;
+    return new Date(epochTime * 1000).toLocaleDateString();
 }
 
 /** Fetch a currency from cache by name, as well as merged with the local dataset */
@@ -100,11 +86,15 @@ async function updatePriceChart() {
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
+        // Limit the historical data to 24 points
+        const limitedData = arrHistorical.slice(-24);
+
         // Completely reset chart data
         priceChart.data.labels = [];
         priceChart.data.datasets[0] = {
             data: [],
-            fill: false,
+            fill: true, // Ensure the area under the line is filled
+            backgroundColor: priceChart.data.datasets[0].backgroundColor, // Apply gradient fill
             borderColor: "#8e44ad", // Purple line color
             pointBackgroundColor: "white", // Purple data points
             pointBorderColor: "#8e44ad", // Purple border for data points
@@ -113,9 +103,9 @@ async function updatePriceChart() {
         };
 
         // Convert the historical data into Chart Data
-        for (const cPoint of arrHistorical) {
-            // Push the "Time" label of each data point
-            priceChart.data.labels.push(fromEpochtoTime(cPoint.timestamp));
+        for (const cPoint of limitedData) {
+            // Push the "Date" label of each data point
+            priceChart.data.labels.push(fromEpochToDate(cPoint.timestamp));
             // Push the value (price) of each data point
             priceChart.data.datasets[0].data.push(cPoint.value);
         }
@@ -241,12 +231,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     },
                     distribution: 'series',
                     padding: 0,
+                    time: {
+                        unit: 'day'
+                    }
                 },
                 y: {
                     drawBorder: false,
                     display: true, // Enable display for y-axis
                     padding: 0,
                     ticks: {
+                        stepSize: 5, // Difference of 5 units
                         callback: function(value) {
                             // Show actual numbers
                             return value;
@@ -263,4 +257,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Once the dropdown is populated, it's safe to enable the listeners!
     setupDropdownListeners();
 });
-
