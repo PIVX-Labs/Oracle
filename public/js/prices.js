@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         stepSize: 5, // Difference of 5 units
                         callback: function(value) {
                             // Show actual numbers
-                            return value;
+                            return n(value);
                         }
                     }
                 }
