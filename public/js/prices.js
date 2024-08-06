@@ -4,10 +4,12 @@ const domDropdownBtn = document.querySelector('.dropdown-btn');
 const domPrice = document.getElementById('price');
 const domTimestamp = document.getElementById('price-updated');
 const domPriceChart = document.getElementById('price-chart');
+const domTimeScale = document.getElementById('time-scale');
 
 // Globals
 let strSelectedCurrency = 'btc';
 let priceChart = null;
+let timeScale = '24h'; // Default time scale
 
 /**
  * @typedef {Object} Price
@@ -24,7 +26,7 @@ let arrPrices = [];
 /**
  * The historical price of the current selected currency
  */
-let arrHistorical = []
+let arrHistorical = [];
 
 /** 
  * Converts a Unix Epoch to a Locale Time String
@@ -94,7 +96,7 @@ function updateDisplay() {
 
 /** Render the Price Chart */
 async function updatePriceChart() {
-    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}`);
+    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?scale=${timeScale}`);
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
@@ -103,9 +105,11 @@ async function updatePriceChart() {
         priceChart.data.datasets[0] = {
             data: [],
             fill: false,
-            borderColor: "white",
+            borderColor: "#8e44ad", // Purple line
+            pointBackgroundColor: "white", // Purple data points
+            pointBorderColor: "#8e44ad", // Purple border for data points
             lineTension: 0.2,
-            borderWidth: 4
+            borderWidth: 3
         };
         // Convert the historical data in to Chart Data
         for (const cPoint of arrHistorical) {
@@ -158,6 +162,27 @@ async function fetchAndPopulateCurrencies() {
     }
 }
 
+/** Set up listeners for dropdown and time scale selection */
+function setupDropdownListeners() {
+    // Time scale change listener
+    domTimeScale.addEventListener('change', (e) => {
+        timeScale = e.target.value;
+        updatePriceChart();
+    });
+
+    // Currency dropdown listener
+    domDropdownContent.addEventListener('click', function (e) {
+        const target = e.target.closest('a');
+        if (target) {
+            e.preventDefault();
+            strSelectedCurrency = target.dataset.value;
+            domDropdownBtn.innerHTML = target.innerHTML;
+            domDropdownContent.style.display = 'none';
+            updateDisplay();
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Fetch and populate the currencies every 5 seconds
     setInterval(fetchAndPopulateCurrencies, 5000);
@@ -169,6 +194,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             labels: [],
             datasets: [{
                 data: [],
+                fill: false,
+                borderColor: "white",
+                lineTension: 0.2,
+                borderWidth: 4
             }]
         },
         options: {
@@ -176,6 +205,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        }
+                    }
                 }
             },
             scales: {
@@ -189,8 +232,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 y: {
                     drawBorder: false,
-                    display: false,
-                    padding: 0
+                    display: true, // Enable display for y-axis
+                    padding: 0,
+                    ticks: {
+                        callback: function(value) {
+                            // Show actual numbers
+                            return value;
+                        }
+                    }
                 }
             }
         }

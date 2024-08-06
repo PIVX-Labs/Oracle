@@ -316,6 +316,23 @@ button:focus {
     border-color: #c24eff;
 }
 
+/* Style for the Time Scale Dropdown */
+.time-scale-selector select {
+    background-color: #D6A7E4; /* Light purple background */
+    color: #4B2D77; /* Dark purple text */
+    border: 1px solid #4B2D77; /* Dark purple border */
+    border-radius: 4px; /* Optional: rounded corners */
+    padding: 8px 12px; /* Adjust padding for better appearance */
+    font-size: 14px; /* Adjust font size as needed */
+    font-family: Arial, sans-serif; /* Ensure consistent font style */
+}
+
+/* Style for the dropdown arrow (if needed) */
+.time-scale-selector select::-ms-expand {
+    display: none; /* Hide default dropdown arrow in IE */
+}
+
+
 .footer {
     display: flex;
     flex-flow: wrap;

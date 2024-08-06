@@ -1,71 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PIVX Oracle</title>
-        <link rel="icon" type="image/png" href="favicon.png">
-        <link rel="canonical" href="https://pivxla.bz/oracle">
-        <meta name="description" content="A reliable, free-to-use, purpose-built price Oracle for PIVX Labs services and the PIVX community.">
-        <meta name="keywords" content="pivx, price, api, oracle, privacy, private, shield, pivxlabs, labs">
-        <meta name="author" content="PIVX Labs">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PIVX Oracle</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="canonical" href="https://pivxla.bz/oracle">
+    <meta name="description" content="A reliable, free-to-use, purpose-built price Oracle for PIVX Labs services and the PIVX community.">
+    <meta name="keywords" content="pivx, price, api, oracle, privacy, private, shield, pivxlabs, labs">
+    <meta name="author" content="PIVX Labs">
 
-        <meta name="msapplication-TileColor" content="#470e75">
-        <meta name="theme-color" content="#470e75">
+    <meta name="msapplication-TileColor" content="#470e75">
+    <meta name="theme-color" content="#470e75">
 
-        <!-- OpenGraph tags -->
-        <meta property="og:title" content="Labs Oracle">
-        <meta property="og:description" content="A reliable, free-to-use, purpose-built price Oracle for PIVX Labs services and the PIVX community.">
-        <meta property="og:image" content="https://pivxla.bz/oracle/img/banner.png">
-        <meta property="og:url" content="https://pivxla.bz/oracle">
+    <!-- OpenGraph tags -->
+    <meta property="og:title" content="Labs Oracle">
+    <meta property="og:description" content="A reliable, free-to-use, purpose-built price Oracle for PIVX Labs services and the PIVX community.">
+    <meta property="og:image" content="https://pivxla.bz/oracle/img/banner.png">
+    <meta property="og:url" content="https://pivxla.bz/oracle">
 
-        <!-- Twitter/X tags -->
-        <meta name="twitter:card" content="summary_large_image">
+    <!-- Twitter/X tags -->
+    <meta name="twitter:card" content="summary_large_image">
 
-        <link rel="stylesheet" type="text/css" href="style.css">
-
-    </head>
-    <body id="background">
-        <center id="app" class="app">
-            <div style="font-family: Montserrat; z-index: 1;">
-                <div class="price-box" id="price" style="color: #a505a5; font-size: 32px; background-color: rgba(106, 13, 145, 0.5); padding: 10px; border-radius: 5px; font-weight: bold;">
-                    ...
-                </div>
-                <i class="timestamp" id="price-updated" style="color: #FFFFFF;">...</i>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body id="background">
+    <center id="app" class="app">
+        <div style="font-family: Montserrat; z-index: 1;">
+            <div class="price-box" id="price" style="color: #a505a5; font-size: 32px; background-color: rgba(106, 13, 145, 0.5); padding: 10px; border-radius: 5px; font-weight: bold;">
+                ...
             </div>
-            <hr>
+            <i class="timestamp" id="price-updated" style="color: #FFFFFF;">...</i>
+        </div>
+        <hr>
 
-            <div>
-                <div class="custom-dropdown">
-                    <button class="dropdown-btn" data-value="btc">
-                        <img src="img/btc.png" alt="BTC">
-                        (BTC) Bitcoin
-                    </button>
-                    <div class="dropdown-content"></div>
-                </div>
-                    <canvas id="price-chart" height="100px"></canvas>
-                    <hr>
-                    <h3 style="margin-bottom: 0;">Calculator</h3>
-                    <div class="conversion-box">
-                        <input type="number" id="piv-amount" placeholder="PIV" class="conversion-input">
-                        <span id="swap-button" class="swap-button">⇆</span>
-                        <input type="number" id="selected-currency-amount" placeholder="..." class="conversion-input">
-                    </div>
-                </div>
-            </center>
+        <div>
+            <div class="custom-dropdown">
+                <button class="dropdown-btn" data-value="btc">
+                    <img src="img/btc.png" alt="BTC">
+                    (BTC) Bitcoin
+                </button>
+                <div class="dropdown-content"></div>
+            </div>
+        </div>
 
-        <center class="footer" style="height: 180px;overflow: hidden;">
-            <center class="footer">
-            © <a href="https://github.com/PIVX-Labs" target="_blank">PIVX Labs</a> | <a href="/api.html">API</a> | <a href="https://discord.gg/zTScGaGtgv" target="_blank">Discord</a> | <a href="https://mypivxwallet.org/" target="_blank">Wallet</a> | <a href="https://pivx.promo/" target="_blank">Faucet</a> | <a href="https://mypivxwallet.org/pivcards/" target="_blank">PIVCards <span style="opacity: 0.75;">(Store)</span></a>
-            </center>
+        <canvas id="price-chart" height="120px"></canvas>
+        <!-- Time Scale Selector -->
+        <div class="time-scale-selector">
+            <label for="time-scale">Select Time Scale:</label>
+            <select id="time-scale">
+                <option value="1h">1 Hour</option>
+                <option value="24h">24 Hours</option>
+                <option value="7d">7 Days</option>
+                <option value="30d">30 Days</option>
+            </select>
+        </div>
+        <hr>
+        <h3 style="margin-bottom: 0;">Calculator</h3>
+        <div class="conversion-box">
+            <input type="number" id="piv-amount" placeholder="PIV" class="conversion-input">
+            <span id="swap-button" class="swap-button">⇆</span>
+            <input type="number" id="selected-currency-amount" placeholder="..." class="conversion-input">
+        </div>
+    </center>
+
+    <center class="footer" style="height: 180px;overflow: hidden;">
+        <center class="footer">
+        © <a href="https://github.com/PIVX-Labs" target="_blank">PIVX Labs</a> | <a href="/api.html">API</a> | <a href="https://discord.gg/zTScGaGtgv" target="_blank">Discord</a> | <a href="https://mypivxwallet.org/" target="_blank">Wallet</a> | <a href="https://pivx.promo/" target="_blank">Faucet</a> | <a href="https://mypivxwallet.org/pivcards/" target="_blank">PIVCards <span style="opacity: 0.75;">(Store)</span></a>
         </center>
+    </center>
 
-        <script src="js/currencies.js"></script>
-        <script src="js/app.js"></script>
-        <script src="js/prices.js"></script>
-        <script src="js/currencybtn.js"></script>
-        <script src="js/calc.js"></script>
-        <script src="js/dependencies/chart.umd.min.js"></script>
-    </body>
+    <script src="js/currencies.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/prices.js"></script>
+    <script src="js/currencybtn.js"></script>
+    <script src="js/calc.js"></script>
+    <script src="js/dependencies/chart.umd.min.js"></script>
+</body>
 </html>
