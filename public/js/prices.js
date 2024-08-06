@@ -112,6 +112,15 @@ async function updatePriceChart() {
             borderWidth: 3
         };
 
+        // Apply some data-crunching when using >24h time scales
+        if (timeScale > 86400) {
+            // Compute how many points to skip in order to keep a 24-point chart
+            const nSkip = Math.floor(arrHistorical.length / 24);
+
+            // Filter out the average of the skippable points
+            arrHistorical = arrHistorical.filter((_, i) => i % nSkip === 0);
+        }
+
         // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
             // Push the "Time" label of each data point
