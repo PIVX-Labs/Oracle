@@ -97,9 +97,6 @@ async function updatePriceChart() {
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
-        // Limit the historical data to 24 points
-        const limitedData = arrHistorical.slice(-24);
-
         // Completely reset chart data
         priceChart.data.labels = [];
         priceChart.data.datasets[0] = {
