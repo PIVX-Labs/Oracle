@@ -94,24 +94,24 @@ function updateDisplay() {
     updatePriceChart();
 }
 
-/** Render the Price Chart */
 async function updatePriceChart() {
-    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?scale=${timeScale}`);
+    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?end=${Math.round(Date.now() / 1000) - timeScale}`);
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
-        // Completely reset chart data (not efficient, and hard to animate, we should rather pop/shift in the future)
+        // Completely reset chart data
         priceChart.data.labels = [];
         priceChart.data.datasets[0] = {
             data: [],
             fill: false,
-            borderColor: "#8e44ad", // Purple line
+            borderColor: "#8e44ad", // Purple line color
             pointBackgroundColor: "white", // Purple data points
             pointBorderColor: "#8e44ad", // Purple border for data points
             lineTension: 0.2,
             borderWidth: 3
         };
-        // Convert the historical data in to Chart Data
+
+        // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
             // Push the "Time" label of each data point
             priceChart.data.labels.push(fromEpochtoTime(cPoint.timestamp));
@@ -119,7 +119,7 @@ async function updatePriceChart() {
             priceChart.data.datasets[0].data.push(cPoint.value);
         }
 
-        // Push "now" in to the chart, to make it completely real-time
+        // Push "now" into the chart, to make it completely real-time
         const cCurrency = getCurrency(strSelectedCurrency);
         priceChart.data.labels.push('Now');
         priceChart.data.datasets[0].data.push(cCurrency.value);
@@ -184,20 +184,27 @@ function setupDropdownListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Fetch and populate the currencies every 5 seconds
-    setInterval(fetchAndPopulateCurrencies, 5000);
-
     // Prepare the chart context
-    priceChart = new Chart(domPriceChart, {
+    const ctx = domPriceChart.getContext('2d');
+    
+    // Create a neon purple gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400); // Adjust the gradient dimensions as needed
+    gradient.addColorStop(0, 'rgba(142, 68, 173, 0.7)'); // Darker neon purple at the bottom
+    gradient.addColorStop(1, 'rgba(142, 68, 173, 0)');   // Fully transparent at the top
+
+    priceChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: [],
             datasets: [{
                 data: [],
-                fill: false,
-                borderColor: "white",
+                fill: true, // Ensure the area under the line is filled
+                backgroundColor: gradient, // Apply gradient fill
+                borderColor: "#8e44ad", // Purple line color
+                pointBackgroundColor: "white", // White data points
+                pointBorderColor: "#8e44ad", // Purple border for data points
                 lineTension: 0.2,
-                borderWidth: 4
+                borderWidth: 3
             }]
         },
         options: {
@@ -251,3 +258,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Once the dropdown is populated, it's safe to enable the listeners!
     setupDropdownListeners();
 });
+
