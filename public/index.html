@@ -49,8 +49,7 @@
         <!-- Time Scale Selector -->
         <div class="time-scale-selector">
             <label for="time-scale">Select Time Scale:</label>
-            <select id="time-scale">
-                <option value="3600">1 Hour</option>
+            <select id="time-scale" onchange="uiChangeTimeScale(this)">
                 <option value="86400">24 Hours</option>
                 <option value="604800">7 Days</option>
                 <option value="2592000">30 Days</option>

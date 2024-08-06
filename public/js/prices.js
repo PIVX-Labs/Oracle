@@ -9,7 +9,7 @@ const domTimeScale = document.getElementById('time-scale');
 // Globals
 let strSelectedCurrency = 'btc';
 let priceChart = null;
-let timeScale = '24h'; // Default time scale
+let timeScale = 86400; // Default time scale is 24h
 
 /**
  * @typedef {Object} Price
@@ -94,6 +94,7 @@ function updateDisplay() {
     updatePriceChart();
 }
 
+/** Fetches and renders chart data for the user-selected currency and time scale */
 async function updatePriceChart() {
     const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?end=${Math.round(Date.now() / 1000) - timeScale}`);
     if (chartRes.ok) {
@@ -134,6 +135,12 @@ async function updatePriceChart() {
     }
 }
 
+/** A UI handler to accept Time Scale updates from the frontend */
+function uiChangeTimeScale(evt) {
+    timeScale = evt.value;
+    updatePriceChart();
+}
+
 /** A flag to determine if this is the first chart render */
 let fFirstChartRender = true;
 
@@ -166,14 +173,8 @@ async function fetchAndPopulateCurrencies() {
     }
 }
 
-/** Set up listeners for dropdown and time scale selection */
+/** Set up dropdown listener */
 function setupDropdownListeners() {
-    // Time scale change listener
-    domTimeScale.addEventListener('change', (e) => {
-        timeScale = e.target.value;
-        updatePriceChart();
-    });
-
     // Currency dropdown listener
     domDropdownContent.addEventListener('click', function (e) {
         const target = e.target.closest('a');
