@@ -120,7 +120,7 @@ async function updatePriceChart() {
         }
 
         // Convert the historical data into Chart Data
-        for (const cPoint of limitedData) {
+        for (const cPoint of arrHistorical) {
             // Push the "Date" label of each data point
             priceChart.data.labels.push(fromEpochToDate(cPoint.timestamp));
             // Push the value (price) of each data point
