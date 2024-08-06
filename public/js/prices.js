@@ -5,6 +5,7 @@ const domDropdownBtn = document.querySelector('.dropdown-btn');
 const domDropdownSearch = document.getElementById('dropdown-search');
 const domPrice = document.getElementById('price');
 const domTimestamp = document.getElementById('price-updated');
+/** @type {HTMLCanvasElement} */
 const domPriceChart = document.getElementById('price-chart');
 const domTimeScale = document.getElementById('time-scale');
 
@@ -99,16 +100,7 @@ async function updatePriceChart() {
 
         // Completely reset chart data
         priceChart.data.labels = [];
-        priceChart.data.datasets[0] = {
-            data: [],
-            fill: true, // Ensure the area under the line is filled
-            backgroundColor: priceChart.data.datasets[0].backgroundColor, // Apply gradient fill
-            borderColor: "#8e44ad", // Purple line color
-            pointBackgroundColor: "white", // Purple data points
-            pointBorderColor: "#8e44ad", // Purple border for data points
-            lineTension: 0.2,
-            borderWidth: 3
-        };
+        priceChart.data.datasets[0] = getChartDataset();
 
         // Apply some data-crunching when using >24h time scales
         if (timeScale > 86400) {
@@ -190,29 +182,37 @@ function setupDropdownListeners() {
     });
 }
 
+/** A cache for the chart gradient */
+let cGradient = null;
+
+/** Get the default, empty chart dataset */
+function getChartDataset() {
+    return {
+        data: [],
+        fill: true, // Ensure the area under the line is filled
+        backgroundColor: cGradient, // Apply gradient fill
+        borderColor: "#8e44ad", // Purple line color
+        pointBackgroundColor: "white", // White data points
+        pointBorderColor: "#8e44ad", // Purple border for data points
+        lineTension: 0.2,
+        borderWidth: 3
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Prepare the chart context
     const ctx = domPriceChart.getContext('2d');
-    
-    // Create a neon purple gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400); // Adjust the gradient dimensions as needed
-    gradient.addColorStop(0, 'rgba(142, 68, 173, 0.7)'); // Darker neon purple at the bottom
-    gradient.addColorStop(1, 'rgba(142, 68, 173, 0)');   // Fully transparent at the top
+
+     // Create a subtle purple gradient
+     cGradient = ctx.createLinearGradient(0, 40, 0, 125);
+     cGradient.addColorStop(0, "rgba(142, 68, 173, 0.5)");
+     cGradient.addColorStop(1, "transparent");
 
     priceChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: [],
-            datasets: [{
-                data: [],
-                fill: true, // Ensure the area under the line is filled
-                backgroundColor: gradient, // Apply gradient fill
-                borderColor: "#8e44ad", // Purple line color
-                pointBackgroundColor: "white", // White data points
-                pointBorderColor: "#8e44ad", // Purple border for data points
-                lineTension: 0.2,
-                borderWidth: 3
-            }]
+            datasets: [ getChartDataset() ]
         },
         options: {
             responsive: true,
