@@ -38,6 +38,16 @@ function fromEpochToDate(epochTime) {
     return new Date(epochTime * 1000).toLocaleDateString();
 }
 
+/** 
+ * Converts a Unix Epoch to a Time String
+ * @param {number} epochTime - the unix epoch
+ */
+function fromEpochToTime(epochTime) {
+    const date = new Date(epochTime * 1000);
+    return date.toTimeString().split(' ')[0]; // Returns hh:mm:ss
+}
+
+
 /** Fetch a currency from cache by name, as well as merged with the local dataset */
 function getCurrency(strCurrency) {
     const cAPICurrency = arrPrices.find(a => a.currency === strCurrency);
@@ -109,18 +119,27 @@ async function updatePriceChart() {
             arrHistorical = arrHistorical.filter((_, i) => i % nSkip === 0);
         }
 
-        // Convert the historical data into Chart Data
+                // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
             // Push the "Date" label of each data point
-            priceChart.data.labels.push(fromEpochToDate(cPoint.timestamp));
+            priceChart.data.labels.push(timeScale === 86400 ? fromEpochToTime(cPoint.timestamp) : fromEpochToDate(cPoint.timestamp));
             // Push the value (price) of each data point
-            priceChart.data.datasets[0].data.push(cPoint.value);
+            priceChart.data.datasets[0].data.push({
+                x: cPoint.timestamp, // x value for time axis
+                y: cPoint.value,     // y value for the price
+                timestamp: cPoint.timestamp // add timestamp for tooltip
+            });
         }
 
         // Push "now" into the chart, to make it completely real-time
         const cCurrency = getCurrency(strSelectedCurrency);
         priceChart.data.labels.push('Now');
-        priceChart.data.datasets[0].data.push(cCurrency.value);
+        priceChart.data.datasets[0].data.push({
+            x: Math.round(Date.now() / 1000), // current timestamp
+            y: cCurrency.value,
+            timestamp: Math.round(Date.now() / 1000)
+        });
+
 
         // Update the chart and animate the transition
         priceChart.update({
@@ -203,10 +222,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Prepare the chart context
     const ctx = domPriceChart.getContext('2d');
 
-     // Create a subtle purple gradient
-     cGradient = ctx.createLinearGradient(0, 40, 0, 125);
-     cGradient.addColorStop(0, "rgba(206, 28, 232, 0.5)");
-     cGradient.addColorStop(1, "transparent");
+    // Create a subtle purple gradient
+    cGradient = ctx.createLinearGradient(0, 40, 0, 125);
+    cGradient.addColorStop(0, "rgba(206, 28, 232, 0.5)");
+    cGradient.addColorStop(1, "transparent");
 
     priceChart = new Chart(ctx, {
         type: 'line',
@@ -238,24 +257,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             scales: {
                 x: {
                     display: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0)', // Faint purple color for grid lines
+                        borderColor: 'rgba(206, 28, 232, 0.2)', // Light border color
+                        borderDash: [5, 5], // Dashed grid lines
+                        drawBorder: false // Hide border
+                    },
                     ticks: {
-                        source: 'data'
+                        source: 'data',
+                        callback: function(value, index, values) {
+                            const timeScale = 86400; // Define your timeScale variable as needed
+                
+                            if (timeScale === 86400) {
+                                return ` (Updated at ${fromEpochToTime(this.getLabelForValue(value))})`;
+                            }
+                            return value;
+                        },
+                        color: 'rgba(206, 28, 232, 1)' // Bright purple color for x-axis ticks
                     },
                     distribution: 'series',
                     padding: 0,
                     time: {
-                        unit: 'day'
+                        unit: 'timeScale',
                     }
                 },
                 y: {
                     drawBorder: false,
                     display: true, // Enable display for y-axis
-                    padding: 0,
+                    grid: {
+                        color: 'rgba(206, 28, 232, 0.1)', // Faint purple color for grid lines
+                        borderColor: 'rgba(206, 28, 232, 0.2)', // Light border color
+                        borderDash: [5, 5], // Dashed grid lines
+                    },
                     ticks: {
                         stepSize: 5, // Difference of 5 units
+                        color: 'rgba(206, 28, 232, 1)', // Bright purple color for y-axis ticks
                         callback: function(value) {
-                            // Show actual numbers
-                            return n(value);
+                            return n(value); // Format numbers
                         }
                     }
                 }
