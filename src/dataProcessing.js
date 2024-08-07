@@ -30,6 +30,10 @@ function filterOutliers(marketData) {
     return noneOutliers
 }
 
+
+const average = array => array.reduce((a, b) => a + b) / array.length;
+
 module.exports = {
     filterOutliers,
+    average
 }

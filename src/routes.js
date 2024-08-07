@@ -4,7 +4,7 @@ const { dataSource } = require('./dataSource');
 const { readDataSource, readHistoricalDataSource, saveDataSource } = require('./db');
 
 const { getMarketData } = require('./remoteData');
-const { filterOutliers } = require('./dataProcessing')
+const { filterOutliers, average } = require('./dataProcessing')
 
 const dataSourceUpdateTime = { //listed in seconds
     coinGecko: 63,
@@ -146,8 +146,6 @@ router.get(ROOT_PREFIX + '/api/v1/price/:currency', async (req, res) => {
         last_updated: nOldestCheck
     });
 });
-
-const average = array => array.reduce((a, b) => a + b) / array.length;
 
 async function prepareMarketData() {
     // Fetch market data from disk
