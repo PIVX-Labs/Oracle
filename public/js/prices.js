@@ -4,7 +4,6 @@ const domDropdownContent = document.getElementById('dropdown-content');
 const domDropdownBtn = document.querySelector('.dropdown-btn');
 const domDropdownSearch = document.getElementById('dropdown-search');
 const domPrice = document.getElementById('price');
-const domTimestamp = document.getElementById('price-updated');
 /** @type {HTMLCanvasElement} */
 const domPriceChart = document.getElementById('price-chart');
 const domTimeScale = document.getElementById('time-scale');
@@ -77,7 +76,6 @@ function updateDisplay() {
     // Update the Price UI
     const cCurrency = getCurrency(strSelectedCurrency);
     domPrice.innerText = `${cCurrency.value} ${cCurrency.currency.toUpperCase()}`;
-    domTimestamp.innerText = `Last updated at ${fromEpochToDate(cCurrency.last_updated)}`;
 
     // Update the calculator "Currency" placeholder
     domCurInput.placeholder = cCurrency.currency.toUpperCase();
