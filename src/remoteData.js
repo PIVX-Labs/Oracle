@@ -94,20 +94,20 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
         });
 
         // Reduce the array object
-        const testObject ={}
+        const priceObject ={}
 
-        Testresult = arrAggregatedPrices.reduce(function (r, a) {
+        aggResult = arrAggregatedPrices.reduce(function (r, a) {
             r[a.ticker] = r[a.ticker] || [];
             r[a.ticker].push(a.tickerPrice);
             return r;
-        },Object.create(testObject));
+        },Object.create(priceObject));
     
 
         // Loop through the array object to filter the outliers and average
         let aggregatedAndOutlierFiltered = []
         let curTimeForSettingThePriceData = Math.floor(new Date().getTime() / 1000)
-        for (const [strCurrency, nPrice] of Object.entries(Testresult)) {
-            let filteredDataReturn = {ticker: strCurrency, tickerPrice: parseFloat(average(filterOutliers(nPrice)).toFixed(8)), timeUpdated: curTimeForSettingThePriceData}
+        for (const [ticker, groupTickerPrice] of Object.entries(aggResult)) {
+            let filteredDataReturn = {ticker: ticker, tickerPrice: parseFloat(average(filterOutliers(groupTickerPrice)).toFixed(8)), timeUpdated: curTimeForSettingThePriceData}
             aggregatedAndOutlierFiltered.push(filteredDataReturn)
         }
 
