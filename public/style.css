@@ -179,16 +179,40 @@ a:hover {
 .conversion-box {
     display: flex;
     align-items: center;
+    position: relative; /* Ensures absolute positioning of floating placeholder */
 }
 
 .conversion-input {
     padding: 10px;
+    padding-top: 20px; /* Increase space at the top for floating placeholder */
     font-size: 16px;
     border: 1px solid #6713aa;
     border-radius: 5px;
     width: 150px;
     margin: 0 10px; /* Adds space between the inputs */
     text-align: center;
+    position: relative;
+    background: rgb(56, 2, 74); /* Ensure background matches the container */
+}
+
+.conversion-input::placeholder {
+    transition: all 0.3s ease;
+    color: #6713aa;
+    position: absolute;
+    top: 10px; /* Adjust this value to control the starting position */
+    left: 10px; /* Adjust left position as needed */
+    font-size: 16px;
+    transform: translateY(0); /* No vertical translation initially */
+    pointer-events: none;
+    z-index: 1111; /* Ensures the placeholder text appears above the input field */
+}
+
+.conversion-input:focus::placeholder,
+.conversion-input:not(:placeholder-shown)::placeholder {
+    top: -15px; /* Adjust this value to control how high the placeholder floats */
+    left: 10px; /* Adjust if needed */
+    font-size: 12px; /* Adjust this value for a smaller floating placeholder */
+    color: #8f19cf;
 }
 
 .conversion-input:hover {
