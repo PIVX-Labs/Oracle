@@ -35,7 +35,9 @@ let arrHistorical = [];
  * @param {number} epochTime - the unix epoch
  */
 function fromEpochToDate(epochTime) {
-    return new Date(epochTime * 1000).toLocaleDateString();
+    const cDate = new Date(epochTime * 1000);
+    // 'en-GB' locale gives it to us in day-month-year
+    return cDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
 /** 
@@ -44,9 +46,9 @@ function fromEpochToDate(epochTime) {
  */
 function fromEpochToTime(epochTime) {
     const date = new Date(epochTime * 1000);
-    return date.toTimeString().split(' ')[0]; // Returns hh:mm:ss
+    // Shave off the seconds
+    return date.toTimeString().split(' ')[0].slice(0, 5);
 }
-
 
 /** Fetch a currency from cache by name, as well as merged with the local dataset */
 function getCurrency(strCurrency) {
@@ -119,10 +121,15 @@ async function updatePriceChart() {
             arrHistorical = arrHistorical.filter((_, i) => i % nSkip === 0);
         }
 
-                // Convert the historical data into Chart Data
+        // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
+            // Check if this point is within the last 24h, and select the Epoch function accordingly
+            const fWithinDay = (Date.now() / 1000) - cPoint.timestamp < 86400;
+            const funcEpochConverter = fWithinDay ? fromEpochToTime : fromEpochToDate;
+
             // Push the "Date" label of each data point
-            priceChart.data.labels.push(timeScale === 86400 ? fromEpochToTime(cPoint.timestamp) : fromEpochToDate(cPoint.timestamp));
+            priceChart.data.labels.push(funcEpochConverter(cPoint.timestamp));
+
             // Push the value (price) of each data point
             priceChart.data.datasets[0].data.push({
                 x: cPoint.timestamp, // x value for time axis
@@ -151,7 +158,7 @@ async function updatePriceChart() {
 
 /** A UI handler to accept Time Scale updates from the frontend */
 function uiChangeTimeScale(evt) {
-    timeScale = evt.value;
+    timeScale = Number(evt.value);
     updatePriceChart();
 }
 
@@ -264,15 +271,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         drawBorder: false // Hide border
                     },
                     ticks: {
-                        source: 'data',
-                        callback: function(value, index, values) {
-                            const timeScale = 86400; // Define your timeScale variable as needed
-                
-                            if (timeScale === 86400) {
-                                return ` (Updated at ${fromEpochToTime(this.getLabelForValue(value))})`;
-                            }
-                            return value;
-                        },
                         color: 'rgba(206, 28, 232, 1)' // Bright purple color for x-axis ticks
                     },
                     distribution: 'series',
