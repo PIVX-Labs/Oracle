@@ -329,6 +329,8 @@ button:focus {
     -webkit-appearance: none; /* Remove default styling in WebKit browsers */
     -moz-appearance: none; /* Remove default styling in Mozilla browsers */
     appearance: none; /* Remove default styling in other browsers */
+    width: 100%; /* Ensure the select element takes full width of container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 /* Hide default dropdown arrow in IE */
@@ -346,7 +348,25 @@ button:focus {
 .time-scale-selector {
     position: relative; /* To position the custom arrow */
     display: inline-block; /* Ensure proper layout */
+    width: 30%; /* Adjust width as needed */
 }
+
+/* Custom arrow styling */
+.time-scale-selector::after {
+    content: ''; /* No text content */
+    position: absolute; /* Position relative to the container */
+    top: 50%; /* Center vertically */
+    right: 8px; /* Space from the right edge of the container */
+    width: 0; /* No width */
+    height: 0; /* No height */
+    border-left: 6px solid transparent; /* Create the triangle shape */
+    border-right: 6px solid transparent; /* Create the triangle shape */
+    border-top: 6px solid #FFFFFF; /* White arrow */
+    transform: translateY(-50%); /* Center the arrow vertically */
+    pointer-events: none; /* Ignore pointer events for the arrow */
+    z-index: 1; /* Ensure the arrow appears above the dropdown */
+}
+
 
 .footer {
     display: flex;
