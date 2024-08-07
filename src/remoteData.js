@@ -2,6 +2,10 @@ const https = require('https');
 const { dataSource } = require('./dataSource');
 const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistoricalData } = require('./db');
 
+const { filterOutliers, average } = require('./dataProcessing')
+
+
+
 let coinMarketCapApiKey = process.env.CMC_KEY;
 let ticker = process.env.TICKER || 'pivx';
 const dataSourceUpdateTime = { //listed in seconds
@@ -89,29 +93,26 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
             }
         });
 
-        // AggregateByTimeStamp
-        const groupAverages = (arr, key, val) => {
-            const specialAverage = (a, b, i, self) => a + b[val] / self.length;
-            return Object.values(
-                arr.reduce((acc, elem, i, self) => (
-                    (acc[elem[key]] = acc[elem[key]] || {
-                    [key]: elem[key],
-                    //TODO : NEEDS TO FILTER OUTLIERS A LITTLE BETTER
-                    [val]: parseFloat(self.filter((x) => x[key] === elem[key]).reduce(specialAverage, 0).toFixed(8)),
-                    }),acc),{})
-            );
-        };
+        // Reduce the array object
+        const testObject ={}
 
-        //We need to group by ticker
-        const aggregateByTicker = groupAverages(arrAggregatedPrices,'ticker','tickerPrice')
+        Testresult = arrAggregatedPrices.reduce(function (r, a) {
+            r[a.ticker] = r[a.ticker] || [];
+            r[a.ticker].push(a.tickerPrice);
+            return r;
+        },Object.create(testObject));
+    
+
+        // Loop through the array object to filter the outliers and average
+        let aggregatedAndOutlierFiltered = []
         let curTimeForSettingThePriceData = Math.floor(new Date().getTime() / 1000)
-        aggregateByTicker.forEach((aggdata) =>{
-            //Add in the "rounded time" and the dataSource
-            aggdata.timeUpdated = curTimeForSettingThePriceData
-        })
+        for (const [strCurrency, nPrice] of Object.entries(Testresult)) {
+            let filteredDataReturn = {ticker: strCurrency, tickerPrice: parseFloat(average(filterOutliers(nPrice)).toFixed(8)), timeUpdated: curTimeForSettingThePriceData}
+            aggregatedAndOutlierFiltered.push(filteredDataReturn)
+        }
 
 
-        arrHistoricalMarketData.push(...aggregateByTicker)
+        arrHistoricalMarketData.push(...aggregatedAndOutlierFiltered)
         await saveHistoricalData(arrHistoricalMarketData)
         console.log("Updated Historical Data")
     }
