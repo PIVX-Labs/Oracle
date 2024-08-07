@@ -191,11 +191,13 @@ function getChartDataset() {
         data: [],
         fill: true, // Ensure the area under the line is filled
         backgroundColor: cGradient, // Apply gradient fill
-        borderColor: "#8e44ad", // Purple line color
+        borderColor: "rgba(206, 28, 232, 0.5)", // Purple line color
         pointBackgroundColor: "white", // White data points
-        pointBorderColor: "#8e44ad", // Purple border for data points
+        pointBorderColor: "rgba(206, 28, 232, 0.4)", // Purple border for data points
         lineTension: 0.2,
-        borderWidth: 3
+        borderWidth: 3,
+        radius: 3,
+        hitRadius: 100
     }
 }
 
@@ -205,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
      // Create a subtle purple gradient
      cGradient = ctx.createLinearGradient(0, 40, 0, 125);
-     cGradient.addColorStop(0, "rgba(142, 68, 173, 0.5)");
+     cGradient.addColorStop(0, "rgba(206, 28, 232, 0.5)");
      cGradient.addColorStop(1, "transparent");
 
     priceChart = new Chart(ctx, {
