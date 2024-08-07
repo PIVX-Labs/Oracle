@@ -326,13 +326,27 @@ button:focus {
     padding: 8px 12px; /* Adjust padding for better appearance */
     font-size: 14px; /* Adjust font size as needed */
     font-family: Arial, sans-serif; /* Ensure consistent font style */
+    -webkit-appearance: none; /* Remove default styling in WebKit browsers */
+    -moz-appearance: none; /* Remove default styling in Mozilla browsers */
+    appearance: none; /* Remove default styling in other browsers */
 }
 
-/* Style for the dropdown arrow (if needed) */
+/* Hide default dropdown arrow in IE */
 .time-scale-selector select::-ms-expand {
-    display: none; /* Hide default dropdown arrow in IE */
+    display: none;
 }
 
+/* Style for the dropdown menu options */
+.time-scale-selector select option {
+    color: #4B2D77; /* Dark purple text for menu items */
+    background-color: #D6A7E4; /* Light purple background for menu items */
+}
+
+/* Custom styling for the select element */
+.time-scale-selector {
+    position: relative; /* To position the custom arrow */
+    display: inline-block; /* Ensure proper layout */
+}
 
 .footer {
     display: flex;
