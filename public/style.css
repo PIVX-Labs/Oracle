@@ -129,8 +129,8 @@ a:hover {
     white-space: nowrap;
 }
 
-.dropdown-content a:hover {
-    background-color: #d09ff1; /* Slightly darker light purple for hover effect */
+.dropdown-content a:hover, .time-scale-dropdown-content div:hover {
+    background-color: #c58beb; /* Slightly darker light purple for hover effect */
 }
 
 .dropdown-content img {
@@ -433,12 +433,6 @@ button:focus {
     cursor: pointer;
     display: flex;
     align-items: center;
-}
-
-/* Dropdown items on hover */
-.time-scale-dropdown-content div:hover {
-    background-color: #4B2D77;
-    color: white;
 }
 
 /* Icon styling */
