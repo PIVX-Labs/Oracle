@@ -367,6 +367,12 @@ button:focus {
     gap: 8px; /* Adjusted gap between icon and text */
 }
 
+/* Icon inversion on the button (black icons aren't good on dark backgrounds!) */
+.time-scale-dropbtn img {
+    filter: invert(100%);
+    -webkit-filter: invert(100%);
+}
+
 /* Dropdown content (hidden by default) */
 .time-scale-dropdown-content {
     display: none;
