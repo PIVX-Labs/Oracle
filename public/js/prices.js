@@ -193,7 +193,9 @@ function selectTimeScale(element) {
 
     // Grab the scale from the element and update the chart
     timeScale = Number(element.getAttribute('data-value'));
-    updatePriceChart();
+    if (!fFirstLoad) {
+        updatePriceChart();
+    }
 }
 
 /** Change the selected currency */
