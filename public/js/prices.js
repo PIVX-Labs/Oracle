@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchAndPopulateCurrencies();
 
     // For the multi-cultural funsies, we'll populate the search placeholder with a random currency...
-    domDropdownSearch.placeholder = arrCurrencyData[Math.floor(Math.random() * arrCurrencyData.length + 1)].name + '...';
+    domDropdownSearch.placeholder = 'Search for ' + arrCurrencyData[Math.floor(Math.random() * arrCurrencyData.length)].name + '...';
 
     // Once the dropdown is populated, it's safe to enable the listeners!
     setupDropdownListeners();
