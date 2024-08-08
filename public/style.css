@@ -183,7 +183,7 @@ a:hover {
     margin: 5px; /* Space around the search box */
     box-sizing: border-box; /* Ensure padding and border are included in width */
     outline: none; /* Remove default outline */
-    box-shadow: 0 0 10px rgba(148, 5, 161, 0.8); /* Neon glow effect */
+    box-shadow: 0 0 10px rgba(175, 12, 221, 0.39) /* Neon glow effect */
 }
 
 .search-input::placeholder {
@@ -195,6 +195,7 @@ a:hover {
     align-items: center;
     justify-content: center;
     gap: 10px; /* Space between the input fields and swap button */
+    margin-top: 15px;
 }
 
 .input-container {
@@ -212,7 +213,7 @@ a:hover {
     margin: 0 10px; /* Adds space between the inputs */
     text-align: center; /* Center the text */
     position: relative;
-    background: rgb(56, 2, 74); /* Ensure background matches the container */
+    background: rgb(42, 0, 55) /* Ensure background matches the container */
 }
 
 .conversion-input::before {
@@ -231,11 +232,11 @@ a:hover {
 .floating-label {
     position: absolute;
     left: 10px;
-    top: 20px;
+    top: 25px;
     transition: all 0.3s ease;
     padding: 0px 5px;
     z-index: 2; /* Ensure it's above the pseudo-element */
-    color: #6713aa;
+    color: #ba7cec;
     font-size: 16px;
     pointer-events: none;
 }
@@ -243,7 +244,7 @@ a:hover {
 .conversion-input:focus + .floating-label,
 .conversion-input:not(:placeholder-shown) + .floating-label {
     top: -10px; /* Move the label above the input border */
-    font-size: 12px; /* Smaller font size for floating label */
+    font-size: 14px; /* Smaller font size for floating label */
     color: #8f19cf;
 }
 
