@@ -116,6 +116,7 @@ a:hover {
     max-height: 200px; /* Adjust as needed */
     box-sizing: border-box;
     right: 0;
+    overflow-x: hidden; /* Remove horizontal scroll */
 }
 
 .dropdown-content a {
