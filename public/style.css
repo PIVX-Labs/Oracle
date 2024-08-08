@@ -242,6 +242,10 @@ a:hover {
     background-color: #00000018;
 }
 
+.conversion-box .input-container input::placeholder {
+    color: transparent; /* Hides the placeholder text */
+}
+
 .swap-button {
     cursor: default;
     font-size: 24px;

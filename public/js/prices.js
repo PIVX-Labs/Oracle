@@ -8,6 +8,8 @@ const domPrice = document.getElementById('price');
 const domPriceChart = document.getElementById('price-chart');
 const domTimeScaleDropdown = document.getElementById('time-scale-btn');
 const domTimeScaleDefault = document.getElementById('time-scale-default');
+const domSelectedCurrencyAmount = document.getElementById('selected-currency-amount');
+const domSelectedCurrencyLabel = document.getElementById('selected-currency-label');
 
 // Globals
 let strSelectedCurrency = 'btc';
@@ -112,6 +114,9 @@ function updateDisplay() {
 
     // Update the calculator "Currency" placeholder
     domCurInput.placeholder = cCurrency.currency.toUpperCase();
+
+    // Update the floating label for the selected currency input
+    domSelectedCurrencyLabel.innerText = cCurrency.currency.toUpperCase();
 
     // If a PIV value is specified, update the conversion too
     if (domPIVInput.value) convertCurrency(domPIVInput.value, strSelectedCurrency, true);
