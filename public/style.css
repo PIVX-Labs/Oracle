@@ -351,7 +351,7 @@ button:focus {
 
 /* Dropdown button styling */
 .time-scale-dropbtn {
-    width: 130%; /* Adjusted width as needed */
+    width: 175px;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #470e75;
