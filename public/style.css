@@ -124,7 +124,7 @@ a:hover {
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 5px;
+    padding: 10px;
     color: #41056c;
     text-decoration: none;
     white-space: nowrap;
