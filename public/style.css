@@ -177,6 +177,23 @@ a:hover {
     bottom: auto;
 }
 
+.search-input {
+    width: 90%; /* Adjust width as needed */
+    padding: 10px;
+    border-radius: 8px; /* Rounded edges */
+    border: 2px solid #9405a1; /* Neon purple border color */
+    background-color: rgba(255, 255, 255, 0.25); /* 25% transparent white background */
+    color: rgb(129, 17, 177); /* Text color */
+    margin: 5px; /* Space around the search box */
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 10px rgba(148, 5, 161, 0.8); /* Neon glow effect */
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.8); /* Black with 80% opacity for transparency */
+}
+
 .conversion-box {
     display: flex;
     align-items: center;
