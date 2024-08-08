@@ -179,20 +179,67 @@ a:hover {
 .conversion-box {
     display: flex;
     align-items: center;
-    position: relative; /* Ensures absolute positioning of floating placeholder */
+    justify-content: center;
+    gap: 10px; /* Space between the input fields and swap button */
+}
+
+.input-container {
+    position: relative;
+    width: 150px; /* Adjust width as needed */
 }
 
 .conversion-input {
     padding: 10px;
-    padding-top: 20px; /* Increase space at the top for floating placeholder */
+    padding-top: 30px; /* Increase padding to make room for the floating label */
     font-size: 16px;
     border: 1px solid #6713aa;
     border-radius: 5px;
-    width: 150px;
+    width: 100%;
     margin: 0 10px; /* Adds space between the inputs */
-    text-align: center;
+    text-align: center; /* Center the text */
     position: relative;
     background: rgb(56, 2, 74); /* Ensure background matches the container */
+}
+
+.conversion-input::before {
+    content: '';
+    position: absolute;
+    top: -5px; /* Extend higher to cover the area where the label floats */
+    left: 10px; /* Align with the label */
+    right: 10px;
+    height: 25px; /* Increase height to cover the area behind the label */
+    background-color: rgb(56, 2, 74); /* Match the background color of the input */
+    z-index: 1; /* Place it above the input border */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.floating-label {
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    transition: all 0.3s ease;
+    padding: 0px 5px;
+    z-index: 2; /* Ensure it's above the pseudo-element */
+    color: #6713aa;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.conversion-input:focus + .floating-label,
+.conversion-input:not(:placeholder-shown) + .floating-label {
+    top: -10px; /* Move the label above the input border */
+    font-size: 12px; /* Smaller font size for floating label */
+    color: #8f19cf;
+}
+
+.conversion-input:hover {
+    border-color: #8f19cf;
+}
+
+.conversion-input:focus {
+    border-color: #c24eff;
+    background-color: #00000018;
 }
 
 .swap-button {

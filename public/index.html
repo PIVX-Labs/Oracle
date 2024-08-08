@@ -70,10 +70,16 @@
         <hr>
         <h3 style="margin-bottom: 0;">Calculator</h3>
         <div class="conversion-box">
-            <input type="number" id="piv-amount" placeholder="PIV" class="conversion-input">
+            <div class="input-container">
+                <input type="number" id="piv-amount" class="conversion-input" required placeholder="PIV">
+                <label for="piv-amount" class="floating-label">PIV</label>
+            </div>
             <span id="swap-button" class="swap-button">⇆</span>
-            <input type="number" id="selected-currency-amount" placeholder="..." class="conversion-input">
-        </div>
+            <div class="input-container">
+                <input type="number" id="selected-currency-amount" class="conversion-input" required>
+                <label for="selected-currency-amount" class="floating-label">Selected Currency</label>
+            </div>
+        </div>        
     </center>
 
     <center class="footer" style="height: 180px;overflow: hidden;">
