@@ -53,6 +53,9 @@ function fromEpochToTime(epochTime) {
 /** Fetch a currency from cache by name, as well as merged with the local dataset */
 function getCurrency(strCurrency) {
     const cAPICurrency = arrPrices.find(a => a.currency === strCurrency);
+    // If there's no API currency... we can forget it for now
+    if (!cAPICurrency) return null;
+
     const cLocalCurrency = arrCurrencyData.find(a => a.ticker === strCurrency);
     if (cLocalCurrency) {
         return { ...cAPICurrency, ...cLocalCurrency, hasAdditionalData: true};
@@ -73,7 +76,9 @@ function updateCurrencyList() {
         if (strSearch && !cCurrency.ticker.includes(strSearch) && !cCurrency.name.toLowerCase().includes(strSearch)) continue;
 
         // Render this currency in the HTML string
-        strDropdownHTML += renderCurrencyButton(cCurrency);
+        // Note: the first in the list gets a highlight for the search focus!
+        const fHighlight = !strDropdownHTML.length && domDropdownSearch.value.length;
+        strDropdownHTML += renderCurrencyButton(cCurrency, false, fHighlight);
 
         // If this is our selected currency, we also update the primary dropdown button
         if (strSelectedCurrency === cCurrency.ticker) {
@@ -84,13 +89,13 @@ function updateCurrencyList() {
 }
 
 /** Renders a Currency in to a HTML representation */
-function renderCurrencyButton(cCurrency, fNoButton = false) {
+function renderCurrencyButton(cCurrency, fNoButton = false, fHighlight = false) {
     if (fNoButton) {
         return `<img src="img/${cCurrency.img}" alt="${cCurrency.ticker}"> (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
         `;
     } else {
         return `
-            <a data-value="${cCurrency.ticker}">
+            <a data-value="${cCurrency.ticker}" ${fHighlight ? 'style="background-color: #c687f4"' : ''}>
                 <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
                 (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
             </a>
@@ -177,6 +182,15 @@ function uiChangeTimeScale(evt) {
     updatePriceChart();
 }
 
+/** Change the selected currency */
+function selectCurrency(strCurrency) {
+    strSelectedCurrency = strCurrency;
+    domDropdownBtn.innerHTML = domDropdownBtn.innerHTML = renderCurrencyButton(getCurrency(strSelectedCurrency), true);
+    domDropdownContainer.style.display = 'none';
+    window.history.pushState(null, '', '?currency=' + strSelectedCurrency);
+    updateDisplay();
+}
+
 /** A flag to determine first-load; used for init-only tasks */
 let fFirstLoad = true;
 
@@ -209,11 +223,7 @@ async function fetchAndPopulateCurrencies() {
             const target = e.target.closest('a');
             if (target) {
                 e.preventDefault();
-                strSelectedCurrency = target.dataset.value;
-                domDropdownBtn.innerHTML = domDropdownBtn.innerHTML = renderCurrencyButton(getCurrency(strSelectedCurrency), true);
-                window.history.pushState(null, '', '?currency=' + strSelectedCurrency);
-                domDropdownContainer.style.display = 'none';
-                updateDisplay();
+                selectCurrency(target.dataset.value);
             }
         });
 
@@ -232,6 +242,17 @@ function setupDropdownListeners() {
         // If the dropdown is opened, focus the cursor on the search input
         if (domDropdownContainer.style.display === 'block') {
             domDropdownSearch.focus();
+        }
+    });
+
+    // Allow "confirming" search result selection when the user is searching
+    domDropdownSearch.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) { // Enter Key
+            // Check if a valid result exists, and if so... select it
+            if (domDropdownContent.childElementCount) {
+                selectCurrency(domDropdownContent.children[0].getAttribute('data-value'));
+                domDropdownSearch.blur();
+            }
         }
     });
 }
