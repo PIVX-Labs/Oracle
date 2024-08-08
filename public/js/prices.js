@@ -6,7 +6,8 @@ const domDropdownSearch = document.getElementById('dropdown-search');
 const domPrice = document.getElementById('price');
 /** @type {HTMLCanvasElement} */
 const domPriceChart = document.getElementById('price-chart');
-const domTimeScale = document.getElementById('time-scale');
+const domTimeScaleDropdown = document.getElementById('time-scale-btn');
+const domTimeScaleDefault = document.getElementById('time-scale-default');
 
 // Globals
 let strSelectedCurrency = 'btc';
@@ -176,9 +177,13 @@ async function updatePriceChart() {
     }
 }
 
-/** A UI handler to accept Time Scale updates from the frontend */
-function uiChangeTimeScale(evt) {
-    timeScale = Number(evt.value);
+/* The UI handler for accepting changes from the Time Scale dropdown */
+function selectTimeScale(element) {
+    // Update the button text and value
+    domTimeScaleDropdown.innerHTML = element.innerHTML;
+
+    // Grab the scale from the element and update the chart
+    timeScale = Number(element.getAttribute('data-value'));
     updatePriceChart();
 }
 
@@ -349,6 +354,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+    // Set default Time Scale selection
+    selectTimeScale(domTimeScaleDefault);
 
     // With one initial fetch on page load
     await fetchAndPopulateCurrencies();
