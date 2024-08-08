@@ -8,6 +8,7 @@ const domPrice = document.getElementById('price');
 const domPriceChart = document.getElementById('price-chart');
 const domTimeScaleDropdown = document.getElementById('time-scale-btn');
 const domTimeScaleDefault = document.getElementById('time-scale-default');
+const domTimeScaleDropdownContent = document.querySelector('.time-scale-dropdown-content');
 const domSelectedCurrencyAmount = document.getElementById('selected-currency-amount');
 const domSelectedCurrencyLabel = document.getElementById('selected-currency-label');
 
@@ -187,6 +188,9 @@ function selectTimeScale(element) {
     // Update the button text and value
     domTimeScaleDropdown.innerHTML = element.innerHTML;
 
+    // Hide the dropdown
+    domTimeScaleDropdownContent.style.display = 'none';
+
     // Grab the scale from the element and update the chart
     timeScale = Number(element.getAttribute('data-value'));
     updatePriceChart();
@@ -244,15 +248,33 @@ async function fetchAndPopulateCurrencies() {
     }
 }
 
+/** UI handler to toggle dropdown states */
+function toggleDropdown(dropdown) {
+    // Save the current dropdown state, so we can flip it
+    const isOpen = dropdown.style.display === 'block';
+
+    // Close all dropdowns
+    domDropdownContainer.style.display = 'none';
+    domTimeScaleDropdownContent.style.display = 'none';
+
+    // Flip the state of the dropdown
+    dropdown.style.display = isOpen ? 'none' : 'block';
+}
+
 /** Set up dropdown listener */
 function setupDropdownListeners() {
     // Currency dropdown clicks
-    document.querySelector('.dropdown-btn').addEventListener('click', () => {
-        domDropdownContainer.style.display = domDropdownContainer.style.display === 'block' ? 'none' : 'block';
+    domDropdownBtn.addEventListener('click', () => {
+        toggleDropdown(domDropdownContainer);
         // If the dropdown is opened, focus the cursor on the search input
         if (domDropdownContainer.style.display === 'block') {
             domDropdownSearch.focus();
         }
+    });
+
+    // Time Scale dropdown clicks
+    domTimeScaleDropdown.addEventListener('click', () => {
+        toggleDropdown(domTimeScaleDropdownContent);
     });
 
     // Allow "confirming" search result selection when the user is searching
@@ -263,6 +285,17 @@ function setupDropdownListeners() {
                 selectCurrency(domDropdownContent.children[0].getAttribute('data-value'));
                 domDropdownSearch.blur();
             }
+        }
+    });
+
+    // Close all custom dropdowns when clicks outside of 'em are spotted
+    document.addEventListener('click', function(event) {
+        const target = event.target;
+        if (!domDropdownBtn.contains(target) && !domDropdownContainer.contains(target)) {
+            domDropdownContainer.style.display = 'none';
+        }
+        if (!domTimeScaleDropdown.contains(target) && !domTimeScaleDropdownContent.contains(target)) {
+            domTimeScaleDropdownContent.style.display = 'none';
         }
     });
 }

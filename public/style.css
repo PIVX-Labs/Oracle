@@ -152,10 +152,6 @@ a:hover {
     background-color: transparent;
 }
 
-.custom-dropdown:hover .dropdown-content {
-    display: block;
-}
-
 .timestamp {
     font-size: smaller;
     font-family: monospace;
@@ -450,11 +446,6 @@ button:focus {
     width: 20px;
     height: 20px;
     margin-right: 12px; /* Add margin to create space between icon and text */
-}
-
-/* Show dropdown on button click */
-.time-scale-dropdown:hover .time-scale-dropdown-content {
-    display: block;
 }
 
 /* Arrow styling for dropdown button */
