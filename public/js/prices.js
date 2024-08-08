@@ -177,6 +177,9 @@ function uiChangeTimeScale(evt) {
     updatePriceChart();
 }
 
+/** A flag to determine first-load; used for init-only tasks */
+let fFirstLoad = true;
+
 /** Fetch and cache all necessary data */
 async function fetchAndPopulateCurrencies() {
     try {
@@ -185,6 +188,18 @@ async function fetchAndPopulateCurrencies() {
 
         // All data for all currencies available gets fetched and cached
         arrPrices = await response.json();
+
+        // If it's first load, and the user requested a currency, load it!
+        if (fFirstLoad) {
+            const cParams = new URLSearchParams(window.location.search);
+            const strUserCurrency = cParams.get('currency')?.toLowerCase();
+            if (strUserCurrency) {
+                const cCurrency = getCurrency(strUserCurrency);
+                if (cCurrency) {
+                    strSelectedCurrency = strUserCurrency.toLowerCase();
+                }
+            }
+        }
 
         // If a currency is selected, re-render it's data!
         if (strSelectedCurrency) updateDisplay();
@@ -196,10 +211,13 @@ async function fetchAndPopulateCurrencies() {
                 e.preventDefault();
                 strSelectedCurrency = target.dataset.value;
                 domDropdownBtn.innerHTML = domDropdownBtn.innerHTML = renderCurrencyButton(getCurrency(strSelectedCurrency), true);
+                window.history.pushState(null, '', '?currency=' + strSelectedCurrency);
                 domDropdownContainer.style.display = 'none';
                 updateDisplay();
             }
         });
+
+        fFirstLoad = false;
     } catch (error) {
         console.error('Fetching failed:');
         console.error(error);
