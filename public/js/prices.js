@@ -91,12 +91,12 @@ function updateCurrencyList() {
 /** Renders a Currency in to a HTML representation */
 function renderCurrencyButton(cCurrency, fNoButton = false, fHighlight = false) {
     if (fNoButton) {
-        return `<img src="img/${cCurrency.img}" alt="${cCurrency.ticker}"> (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
+        return `<img src="img/${cCurrency.ticker}.png" alt="${cCurrency.ticker}"> (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
         `;
     } else {
         return `
             <a data-value="${cCurrency.ticker}" ${fHighlight ? 'style="background-color: #c687f4"' : ''}>
-                <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
+                <img src="img/${cCurrency.ticker}.png" alt="${cCurrency.ticker}">
                 (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
             </a>
         `;

@@ -1,247 +1,198 @@
 const arrCurrencyData = [
     {
         "ticker": "btc",
-        "name": "Bitcoin",
-        "img": "btc.png"
+        "name": "Bitcoin"
     },
     {
         "ticker": "eth",
-        "name": "Ethereum",
-        "img": "eth.png"
+        "name": "Ethereum"
     },
     {
         "ticker": "usd",
-        "name": "US Dollar",
-        "img": "usd.png"
+        "name": "US Dollar"
     },
     {
         "ticker": "aed",
-        "name": "UAE Dirham",
-        "img": "aed.png"
+        "name": "UAE Dirham"
     },
     {
         "ticker": "ars",
-        "name": "Argentine Peso",
-        "img": "ars.png"
+        "name": "Argentine Peso"
     },
     {
         "ticker": "aud",
-        "name": "Australian Dollar",
-        "img": "aud.png"
+        "name": "Australian Dollar"
     },
     {
         "ticker": "bdt",
-        "name": "Bangladeshi Taka",
-        "img": "bdt.png"
+        "name": "Bangladeshi Taka"
     },
     {
         "ticker": "bhd",
-        "name": "Bahraini Dinar",
-        "img": "bhd.png"
+        "name": "Bahraini Dinar"
     },
     {
         "ticker": "bmd",
-        "name": "Bermudian Dollar",
-        "img": "bmd.png"
+        "name": "Bermudian Dollar"
     },
     {
         "ticker": "bnb",
-        "name": "Binance Coin",
-        "img": "bnb.png"
+        "name": "Binance Coin"
     },
     {
         "ticker": "brl",
-        "name": "Brazilian Real",
-        "img": "brl.png"
+        "name": "Brazilian Real"
     },
     {
         "ticker": "cad",
-        "name": "Canadian Dollar",
-        "img": "cad.png"
+        "name": "Canadian Dollar"
     },
     {
         "ticker": "chf",
-        "name": "Swiss Franc",
-        "img": "chf.png"
+        "name": "Swiss Franc"
     },
     {
         "ticker": "clp",
-        "name": "Chilean Peso",
-        "img": "clp.png"
+        "name": "Chilean Peso"
     },
     {
         "ticker": "cny",
-        "name": "Chinese Yuan",
-        "img": "cny.png"
+        "name": "Chinese Yuan"
     },
     {
         "ticker": "czk",
-        "name": "Czech Koruna",
-        "img": "czk.png"
+        "name": "Czech Koruna"
     },
     {
         "ticker": "dkk",
-        "name": "Danish Krone",
-        "img": "dkk.png"
+        "name": "Danish Krone"
     },
     {
         "ticker": "eur",
-        "name": "Euro",
-        "img": "eur.png"
+        "name": "Euro"
     },
     {
         "ticker": "gbp",
-        "name": "British Pound Sterling",
-        "img": "gbp.png"
+        "name": "British Pound Sterling"
     },
     {
         "ticker": "hkd",
-        "name": "Hong Kong Dollar",
-        "img": "hkd.png"
+        "name": "Hong Kong Dollar"
     },
     {
         "ticker": "huf",
-        "name": "Hungarian Forint",
-        "img": "huf.png"
+        "name": "Hungarian Forint"
     },
     {
         "ticker": "idr",
-        "name": "Indonesian Rupiah",
-        "img": "idr.png"
+        "name": "Indonesian Rupiah"
     },
     {
         "ticker": "ils",
-        "name": "Israeli New Shekel",
-        "img": "ils.png"
+        "name": "Israeli New Shekel"
     },
     {
         "ticker": "inr",
-        "name": "Indian Rupee",
-        "img": "inr.png"
+        "name": "Indian Rupee"
     },
     {
         "ticker": "jpy",
-        "name": "Japanese Yen",
-        "img": "jpy.png"
+        "name": "Japanese Yen"
     },
     {
         "ticker": "krw",
-        "name": "South Korean Won",
-        "img": "krw.png"
+        "name": "South Korean Won"
     },
     {
         "ticker": "kwd",
-        "name": "Kuwaiti Dinar",
-        "img": "kwd.png"
+        "name": "Kuwaiti Dinar"
     },
     {
         "ticker": "lkr",
-        "name": "Sri Lankan Rupee",
-        "img": "lkr.png"
+        "name": "Sri Lankan Rupee"
     },
     {
         "ticker": "ltc",
-        "name": "Litecoin",
-        "img": "ltc.png"
+        "name": "Litecoin"
     },
     {
         "ticker": "mmk",
-        "name": "Myanmar Kyat",
-        "img": "mmk.png"
+        "name": "Myanmar Kyat"
     },
     {
         "ticker": "mxn",
-        "name": "Mexican Peso",
-        "img": "mxn.png"
+        "name": "Mexican Peso"
     },
     {
         "ticker": "myr",
-        "name": "Malaysian Ringgit",
-        "img": "myr.png"
+        "name": "Malaysian Ringgit"
     },
     {
         "ticker": "nok",
-        "name": "Norwegian Krone",
-        "img": "nok.png"
+        "name": "Norwegian Krone"
     },
     {
         "ticker": "nzd",
-        "name": "New Zealand Dollar",
-        "img": "nzd.png"
+        "name": "New Zealand Dollar"
     },
     {
         "ticker": "php",
-        "name": "Philippine Peso",
-        "img": "php.png"
+        "name": "Philippine Peso"
     },
     {
         "ticker": "pkr",
-        "name": "Pakistani Rupee",
-        "img": "pkr.png"
+        "name": "Pakistani Rupee"
     },
     {
         "ticker": "pln",
-        "name": "Polish Zloty",
-        "img": "pln.png"
+        "name": "Polish Zloty"
     },
     {
         "ticker": "rub",
-        "name": "Russian Ruble",
-        "img": "rub.png"
+        "name": "Russian Ruble"
     },
     {
         "ticker": "sar",
-        "name": "Saudi Arabian Riyal",
-        "img": "sar.png"
+        "name": "Saudi Arabian Riyal"
     },
     {
         "ticker": "sek",
-        "name": "Swedish Krona",
-        "img": "sek.png"
+        "name": "Swedish Krona"
     },
     {
         "ticker": "sgd",
-        "name": "Singapore Dollar",
-        "img": "sgd.png"
+        "name": "Singapore Dollar"
     },
     {
         "ticker": "thb",
-        "name": "Thai Baht",
-        "img": "thb.png"
+        "name": "Thai Baht"
     },
     {
         "ticker": "try",
-        "name": "Turkish Lira",
-        "img": "try.png"
+        "name": "Turkish Lira"
     },
     {
         "ticker": "twd",
-        "name": "New Taiwan Dollar",
-        "img": "twd.png"
+        "name": "New Taiwan Dollar"
     },
     {
         "ticker": "uah",
-        "name": "Ukrainian Hryvnia",
-        "img": "uah.png"
+        "name": "Ukrainian Hryvnia"
     },
     {
         "ticker": "vef",
-        "name": "Venezuelan Bolivar",
-        "img": "vef.png"
+        "name": "Venezuelan Bolivar"
     },
     {
         "ticker": "vnd",
-        "name": "Vietnamese Dong",
-        "img": "vnd.png"
+        "name": "Vietnamese Dong"
     },
     {
         "ticker": "xag",
-        "name": "Silver Ounce",
-        "img": "xag.png"
+        "name": "Silver Ounce"
     },
     {
         "ticker": "xau",
-        "name": "Gold Ounce",
-        "img": "xau.png"
-    },
+        "name": "Gold Ounce"
+    }
 ]
