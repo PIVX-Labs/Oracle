@@ -341,56 +341,86 @@ button:focus {
     border-color: #c24eff;
 }
 
-/* Style for the Time Scale Dropdown */
-.time-scale-selector select {
-    background-color: #D6A7E4; /* Light purple background */
-    color: #4B2D77; /* Dark purple text */
-    border: 1px solid #4B2D77; /* Dark purple border */
-    border-radius: 4px; /* Optional: rounded corners */
-    padding: 8px 12px; /* Adjust padding for better appearance */
-    font-size: 14px; /* Adjust font size as needed */
-    font-family: Arial, sans-serif; /* Ensure consistent font style */
-    -webkit-appearance: none; /* Remove default styling in WebKit browsers */
-    -moz-appearance: none; /* Remove default styling in Mozilla browsers */
-    appearance: none; /* Remove default styling in other browsers */
-    width: 100%; /* Ensure the select element takes full width of container */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-}
-
-/* Hide default dropdown arrow in IE */
-.time-scale-selector select::-ms-expand {
-    display: none;
-}
-
-/* Style for the dropdown menu options */
-.time-scale-selector select option {
-    color: #4B2D77; /* Dark purple text for menu items */
-    background-color: #D6A7E4; /* Light purple background for menu items */
-}
-
-/* Custom styling for the select element */
+/* Custom dropdown container */
 .time-scale-selector {
-    position: relative; /* To position the custom arrow */
-    display: inline-block; /* Ensure proper layout */
-    width: 31%; /* Adjust width as needed */
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center the dropdown container */
+    width: 100%; /* Adjust width as needed */
 }
 
-/* Custom arrow styling */
-.time-scale-selector::after {
-    content: ''; /* No text content */
-    position: absolute; /* Position relative to the container */
-    top: 50%; /* Center vertically */
-    right: 8px; /* Space from the right edge of the container */
-    width: 0; /* No width */
-    height: 0; /* No height */
-    border-left: 4px solid transparent; /* Create the triangle shape */
-    border-right: 4px solid transparent; /* Create the triangle shape */
-    border-top: 4px solid #FFFFFF; /* White arrow */
-    transform: translateY(-50%); /* Center the arrow vertically */
-    pointer-events: none; /* Ignore pointer events for the arrow */
-    z-index: 1; /* Ensure the arrow appears above the dropdown */
+/* Dropdown button styling */
+.time-scale-dropbtn {
+    width: 130%; /* Adjusted width as needed */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #470e75;
+    border-radius: 8px;
+    background: rgba(128, 0, 128, 0.3) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4H4z" fill="%23fff"/></svg>') no-repeat right 10px center;
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Adjusted gap between icon and text */
 }
 
+/* Dropdown content (hidden by default) */
+.time-scale-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #d9a6f5; /* Light purple background */
+    border: 1px solid #4B2D77; /* Dark purple border */
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+    top: 100%; /* Position below the button */
+    width: 50%; /* Match the width of the button */
+    max-height: 300px; /* Optional: Limit height to prevent overflow */
+    overflow-y: auto; /* Add scroll if content exceeds max height */
+    z-index: 1000; /* Ensure it appears above other content */
+    padding: 5px; /* Add padding to the content */
+}
+
+/* Dropdown items */
+.time-scale-dropdown-content div {
+    color: #4B2D77; /* Dark purple text */
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown items on hover */
+.time-scale-dropdown-content div:hover {
+    background-color: #4B2D77;
+    color: white;
+}
+
+/* Icon styling */
+.time-scale-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px; /* Add margin to create space between icon and text */
+}
+
+/* Show dropdown on button click */
+.time-scale-selector:hover .time-scale-dropdown-content {
+    display: block;
+}
+
+/* Arrow styling for dropdown button */
+.time-scale-dropbtn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 0;
+    height: 0;
+}
 
 .footer {
     display: flex;

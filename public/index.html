@@ -47,13 +47,26 @@
 
         <!-- Time Scale Selector -->
         <div class="time-scale-selector">
-            <select id="time-scale" onchange="uiChangeTimeScale(this)" style="border: 1px solid #6713aa; border-radius: 8px; background: rgba(128, 0, 128, 0.3); color: white; margin: 15px;">
-                <option value="86400">⏰ 24 Hours</option>
-                <option value="604800">📅 7 Days</option>
-                <option value="2592000">📆 30 Days</option>
-            </select>
+            <div class="time-scale-dropdown">
+                <button class="time-scale-dropbtn" id="time-scale-btn">
+                    <span class="time-scale-selected">24 Hours</span>
+                    <span class="arrow"></span>
+                </button>
+                <div class="time-scale-dropdown-content">
+                    <div data-value="86400" onclick="selectTimeScale(this)">
+                        <img src="img/24-hours.png" alt="24 Hours Icon" class="time-scale-icon"> 24 Hours
+                    </div>
+                    <div data-value="604800" onclick="selectTimeScale(this)">
+                        <img src="img/7-days.png" alt="7 Days Icon" class="time-scale-icon"> 7 Days
+                    </div>
+                    <div data-value="2592000" onclick="selectTimeScale(this)">
+                        <img src="img/30-days.png" alt="30 Days Icon" class="time-scale-icon"> 30 Days
+                    </div>
+                </div>
+            </div>
         </div>
-                
+        
+                  
         <hr>
         <h3 style="margin-bottom: 0;">Calculator</h3>
         <div class="conversion-box">
@@ -74,5 +87,6 @@
     <script src="js/prices.js"></script>
     <script src="js/calc.js"></script>
     <script src="js/dependencies/chart.umd.min.js"></script>
+    <script src="js/timescale.js"></script>
 </body>
 </html>
