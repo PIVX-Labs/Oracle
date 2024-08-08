@@ -453,7 +453,7 @@ button:focus {
 }
 
 /* Show dropdown on button click */
-.time-scale-selector:hover .time-scale-dropdown-content {
+.time-scale-dropdown:hover .time-scale-dropdown-content {
     display: block;
 }
 
