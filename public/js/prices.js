@@ -73,14 +73,29 @@ function updateCurrencyList() {
         if (strSearch && !cCurrency.ticker.includes(strSearch) && !cCurrency.name.toLowerCase().includes(strSearch)) continue;
 
         // Render this currency in the HTML string
-        strDropdownHTML += `
+        strDropdownHTML += renderCurrencyButton(cCurrency);
+
+        // If this is our selected currency, we also update the primary dropdown button
+        if (strSelectedCurrency === cCurrency.ticker) {
+            domDropdownBtn.innerHTML = renderCurrencyButton(cCurrency, true);
+        }
+    }
+    domDropdownContent.innerHTML = strDropdownHTML;
+}
+
+/** Renders a Currency in to a HTML representation */
+function renderCurrencyButton(cCurrency, fNoButton = false) {
+    if (fNoButton) {
+        return `<img src="img/${cCurrency.img}" alt="${cCurrency.ticker}"> (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
+        `;
+    } else {
+        return `
             <a data-value="${cCurrency.ticker}">
                 <img src="img/${cCurrency.img}" alt="${cCurrency.ticker}">
                 (${cCurrency.ticker.toUpperCase()}) ${cCurrency.name}
             </a>
         `;
     }
-    domDropdownContent.innerHTML = strDropdownHTML;
 }
 
 /** Render the state */
@@ -180,7 +195,7 @@ async function fetchAndPopulateCurrencies() {
             if (target) {
                 e.preventDefault();
                 strSelectedCurrency = target.dataset.value;
-                domDropdownBtn.innerHTML = target.innerHTML;
+                domDropdownBtn.innerHTML = domDropdownBtn.innerHTML = renderCurrencyButton(getCurrency(strSelectedCurrency), true);
                 domDropdownContainer.style.display = 'none';
                 updateDisplay();
             }
@@ -193,15 +208,12 @@ async function fetchAndPopulateCurrencies() {
 
 /** Set up dropdown listener */
 function setupDropdownListeners() {
-    // Currency dropdown listener
-    domDropdownContent.addEventListener('click', function (e) {
-        const target = e.target.closest('a');
-        if (target) {
-            e.preventDefault();
-            strSelectedCurrency = target.dataset.value;
-            domDropdownBtn.innerHTML = target.innerHTML;
-            domDropdownContainer.style.display = 'none';
-            updateDisplay();
+    // Currency dropdown clicks
+    document.querySelector('.dropdown-btn').addEventListener('click', () => {
+        domDropdownContainer.style.display = domDropdownContainer.style.display === 'block' ? 'none' : 'block';
+        // If the dropdown is opened, focus the cursor on the search input
+        if (domDropdownContainer.style.display === 'block') {
+            domDropdownSearch.focus();
         }
     });
 }
