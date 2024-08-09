@@ -62,12 +62,221 @@ a:hover {
     background-color: rgba(37, 6, 58, 0.74);
     border-radius: 10px;
     padding: 25px 50px;
+    margin-top: 30px;
     margin-left: 15px;
     margin-right: 15px;
     box-shadow: 7px 7px 33px 0px #00000026;
     border: 1px solid #9046B1;
     transition: 0.4s;
+    margin-bottom: 50px; /* Add this line */
 }
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 300px;
+}
+
+.dropdown-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #470e75;
+    border-radius: 8px;
+    background: rgba(128, 0, 128, 0.3) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4H4z" fill="%23fff"/></svg>') no-repeat right 10px center;
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Adjusted gap between icon and text */
+}
+
+.dropdown-btn img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0; /* Remove margin to reduce gap */
+
+    /* Temp: invert the image colour from black to white, looks better */
+    filter: invert(100%);
+    -webkit-filter: invert(100%);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #d9a6f5;
+    min-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    overflow-y: auto; /* Allow scrollbar */
+    max-height: 200px; /* Adjust as needed */
+    box-sizing: border-box;
+    right: 0;
+    overflow-x: hidden; /* Remove horizontal scroll */
+}
+
+.dropdown-content a {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #41056c;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.dropdown-content a:hover, .time-scale-dropdown-content div:hover {
+    background-color: #c58beb; /* Slightly darker light purple for hover effect */
+}
+
+.dropdown-content img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px; /* Space between icon and text in dropdown */
+}
+
+.dropdown-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+    background-color: #9405a1;
+    border-radius: 4px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.timestamp {
+    font-size: smaller;
+    font-family: monospace;
+    opacity: 0.75;
+}
+
+/* Ensure dropdown fits within the screen */
+@media (max-width: 600px) {
+    .dropdown-content {
+        left: 0;
+        right: 0;
+        transform: none; /* Adjust dropdown position for small screens */
+    }
+}
+
+/* Show dropdown content below button after selection */
+.dropdown-content.show-below {
+    top: 100%;
+    bottom: auto;
+}
+
+.search-input {
+    width: 90%; /* Adjust width as needed */
+    padding: 10px;
+    border-radius: 8px; /* Rounded edges */
+    border: 2px solid #9405a1; /* Neon purple border color */
+    background-color: rgba(255, 255, 255, 0.25); /* 25% transparent white background */
+    color: rgb(129, 17, 177); /* Text color */
+    margin: 5px; /* Space around the search box */
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 10px rgba(175, 12, 221, 0.39) /* Neon glow effect */
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.8); /* Black with 80% opacity for transparency */
+}
+
+.conversion-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between the input fields and swap button */
+    margin-top: 15px;
+}
+
+.input-container {
+    position: relative;
+    width: 150px; /* Adjust width as needed */
+}
+
+.conversion-input {
+    padding: 10px;
+    padding-top: 30px; /* Increase padding to make room for the floating label */
+    font-size: 16px;
+    border: 1px solid #6713aa;
+    border-radius: 5px;
+    width: 100%;
+    margin: 0 10px; /* Adds space between the inputs */
+    text-align: center; /* Center the text */
+    position: relative;
+    background: rgb(42, 0, 55) /* Ensure background matches the container */
+}
+
+.conversion-input::before {
+    content: '';
+    position: absolute;
+    top: -5px; /* Extend higher to cover the area where the label floats */
+    left: 10px; /* Align with the label */
+    right: 10px;
+    height: 25px; /* Increase height to cover the area behind the label */
+    background-color: rgb(56, 2, 74); /* Match the background color of the input */
+    z-index: 1; /* Place it above the input border */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.floating-label {
+    position: absolute;
+    left: 10px;
+    top: 25px;
+    transition: all 0.3s ease;
+    padding: 0px 5px;
+    z-index: 2; /* Ensure it's above the pseudo-element */
+    color: #ba7cec;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.conversion-input:focus + .floating-label,
+.conversion-input:not(:placeholder-shown) + .floating-label {
+    top: -10px; /* Move the label above the input border */
+    font-size: 14px; /* Smaller font size for floating label */
+    color: #8f19cf;
+}
+
+.conversion-input:hover {
+    border-color: #8f19cf;
+}
+
+.conversion-input:focus {
+    border-color: #c24eff;
+    background-color: #00000018;
+}
+
+.conversion-box .input-container input::placeholder {
+    color: transparent; /* Hides the placeholder text */
+}
+
+.swap-button {
+    cursor: default;
+    font-size: 24px;
+    padding: 10px;
+    color: white;
+    border-radius: 50%; /* Makes the button circular */
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px; /* Ensures the button is circular */
+    height: 50px; /* Ensures the button is circular */
+    margin: 0 10px; /* Adds space around the swap button */
+}
+
 
 .blurred {
     filter: blur(10px);
@@ -163,6 +372,112 @@ button {
 button:hover {
     background-color: #9b46c733;
     border-color: #c24eff;
+}
+
+button:focus {
+    background-color: #9b46c733;
+    border-color: #c24eff;
+}
+
+/* Custom dropdown container */
+.time-scale-selector {
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center the dropdown container */
+    width: 100%; /* Adjust width as needed */
+}
+
+/* Dropdown button styling */
+.time-scale-dropbtn {
+    width: 175px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #470e75;
+    border-radius: 8px;
+    background: rgba(128, 0, 128, 0.3) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4H4z" fill="%23fff"/></svg>') no-repeat right 10px center;
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Adjusted gap between icon and text */
+}
+
+/* Icon inversion on the button (black icons aren't good on dark backgrounds!) */
+.time-scale-dropbtn img {
+    filter: invert(100%);
+    -webkit-filter: invert(100%);
+}
+
+/* Dropdown content (hidden by default) */
+.time-scale-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #d9a6f5; /* Light purple background */
+    border: 1px solid #4B2D77; /* Dark purple border */
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+    width: 175px; /* Match the width of the button */
+    max-height: 300px; /* Optional: Limit height to prevent overflow */
+    overflow-y: auto; /* Add scroll if content exceeds max height */
+    z-index: 1000; /* Ensure it appears above other content */
+    padding: 5px; /* Add padding to the content */
+}
+
+/* Dropdown items */
+.time-scale-dropdown-content div {
+    color: #41056c;
+    padding: 5px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* Icon styling */
+.time-scale-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px; /* Add margin to create space between icon and text */
+}
+
+/* Arrow styling for dropdown button */
+.time-scale-dropbtn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 0;
+    height: 0;
+}
+
+/* Chrome/Webkit Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+    height: 12px; /* Height of the scrollbar in horizontal mode */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #8a2be2; /* Purple color for the scrollbar thumb */
+    border-radius: 6px; /* Rounded edges for the scrollbar thumb */
+    border: 3px solid transparent; /* Adds padding around the thumb */
+    background-clip: content-box; /* Clip the background to the content box */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #370054; /* Darker purple for the scrollbar track */
+    border-radius: 6px; /* Rounded edges for the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #ba55d3; /* Lighter purple when hovering over the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: #9932cc; /* Even lighter purple when the scrollbar thumb is active */
 }
 
 .footer {
