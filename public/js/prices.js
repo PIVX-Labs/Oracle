@@ -107,8 +107,15 @@ function renderCurrencyButton(cCurrency, fNoButton = false, fHighlight = false) 
     }
 }
 
+/** A cache for the last displayed currency, used for in-between update animations */
+let strLastDisplayedCurrency = '';
+
 /** Render the state */
 function updateDisplay() {
+    // Check against our last currency, so we know if an animation is warrented
+    const fAnimate = strLastDisplayedCurrency !== strSelectedCurrency;
+    strLastDisplayedCurrency = strSelectedCurrency;
+
     // Update the Price UI
     const cCurrency = getCurrency(strSelectedCurrency);
     domPrice.innerText = `${cCurrency.value} ${cCurrency.currency.toUpperCase()}`;
@@ -126,11 +133,11 @@ function updateDisplay() {
     updateCurrencyList();
 
     // Update chart data
-    updatePriceChart();
+    updatePriceChart(fAnimate);
 }
 
 /** Fetches and renders chart data for the user-selected currency and time scale */
-async function updatePriceChart() {
+async function updatePriceChart(fAnimate = false) {
     const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?end=${Math.round(Date.now() / 1000) - timeScale}`);
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
@@ -174,9 +181,8 @@ async function updatePriceChart() {
             timestamp: Math.round(Date.now() / 1000)
         });
 
-
         // Update the chart and animate the transition
-        priceChart.update({
+        priceChart.update(!fAnimate ? 'none' : {
             duration: 800, // Animation duration in milliseconds
             easing: 'easeInOutQuad' // Animation easing function
         });
@@ -194,7 +200,7 @@ function selectTimeScale(element) {
     // Grab the scale from the element and update the chart
     timeScale = Number(element.getAttribute('data-value'));
     if (!fFirstLoad) {
-        updatePriceChart();
+        updatePriceChart(true);
     }
 }
 
@@ -234,15 +240,6 @@ async function fetchAndPopulateCurrencies() {
         // If a currency is selected, re-render it's data!
         if (strSelectedCurrency) updateDisplay();
 
-        // UI listener for selecting currencies
-        domDropdownContent.addEventListener('click', function (e) {
-            const target = e.target.closest('a');
-            if (target) {
-                e.preventDefault();
-                selectCurrency(target.dataset.value);
-            }
-        });
-
         fFirstLoad = false;
     } catch (error) {
         console.error('Fetching failed:');
@@ -277,6 +274,15 @@ function setupDropdownListeners() {
     // Time Scale dropdown clicks
     domTimeScaleDropdown.addEventListener('click', () => {
         toggleDropdown(domTimeScaleDropdownContent);
+    });
+
+    // UI listener for selecting currencies
+    domDropdownContent.addEventListener('click', function (e) {
+        const target = e.target.closest('a');
+        if (target) {
+            e.preventDefault();
+            selectCurrency(target.dataset.value);
+        }
     });
 
     // Allow "confirming" search result selection when the user is searching
@@ -400,6 +406,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // With one initial fetch on page load
     await fetchAndPopulateCurrencies();
+
+    // And a repeated fetch every 10 seconds
+    setInterval(fetchAndPopulateCurrencies, 10000);
 
     // For the multi-cultural funsies, we'll populate the search placeholder with a random currency...
     domDropdownSearch.placeholder = 'Search for ' + arrCurrencyData[Math.floor(Math.random() * arrCurrencyData.length)].name + '...';
