@@ -219,6 +219,11 @@ a:hover {
 
 /* Media query for mobile screens */
 @media (max-width: 768px) {
+    .app {
+        max-width: 90%; 
+        margin: 15px auto 70px; /* Center the app container */
+    }
+
     .conversion-box {
         flex-direction: column; /* Stack items vertically */
         gap: 0; /* Eliminate gap between items */
