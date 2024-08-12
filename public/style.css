@@ -53,22 +53,22 @@ a:hover {
 }
 
 .app {
-    width: fit-content;
-    height: fit-content;
-    color: white;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    background-color: rgba(37, 6, 58, 0.74);
-    border-radius: 10px;
-    padding: 25px 50px;
-    margin-top: 30px;
-    margin-left: 15px;
-    margin-right: 15px;
-    box-shadow: 7px 7px 33px 0px #00000026;
-    border: 1px solid #9046B1;
-    transition: 0.4s;
-    margin-bottom: 50px; /* Add this line */
+    .app {
+        max-width: 100%; /* Ensure it doesn't exceed the screen width */
+        width: auto; /* Allow the width to adjust based on content */
+        color: white;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        background-color: rgba(37, 6, 58, 0.74);
+        border-radius: 10px;
+        padding: 20px 30px; /* Reduced padding for a smaller width */
+        margin: 30px 15px 50px; /* Combined margins for top, left/right, and bottom */
+        box-shadow: 7px 7px 33px 0px #00000026;
+        border: 1px solid #9046B1;
+        transition: 0.4s;
+        margin-bottom: 50px; 
+    }
 }
 
 .custom-dropdown {
@@ -215,6 +215,23 @@ a:hover {
     text-align: center; /* Center the text */
     position: relative;
     background: rgb(42, 0, 55) /* Ensure background matches the container */
+}
+
+/* Media query for mobile screens */
+@media (max-width: 768px) {
+    .conversion-box {
+        flex-direction: column; /* Stack the items vertically */
+    }
+
+    .input-container {
+        width: 100%; /* Make the input containers full width */
+        margin-bottom: 10px; /* Add some space between the stacked items */
+    }
+
+    .conversion-input {
+        margin: 0; /* Remove margin on the sides */
+        text-align: center; /* Keep text centered */
+    }
 }
 
 .conversion-input::before {
