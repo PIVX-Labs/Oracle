@@ -231,16 +231,17 @@ a:hover {
         margin-top: 0; /* Remove top margin */
         width: 100%; /* Full width for mobile view */
         max-width: none; /* Remove max-width restriction */
+        padding: 2vw; /* Add some padding for better spacing */
     }
 
     .input-container {
-        width: 85%; 
-        margin-bottom: 0; /* Remove space between stacked items */
+        width: 90%; /* Slightly reduce width for better alignment */
+        margin-bottom: 1em; /* Add some space between stacked items */
     }
 
     .conversion-input {
         margin: 0; /* Remove margin on the sides */
-        padding: 10px 0; /* Remove extra padding */
+        padding: 2vh 0; /* Use viewport height for proportional padding */
     }
 
     .conversion-input::before,
