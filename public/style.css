@@ -191,17 +191,24 @@ a:hover {
     color: rgba(0, 0, 0, 0.8); /* Black with 80% opacity for transparency */
 }
 
+/* Centering conversion box inside the app container */
 .conversion-box {
     display: flex;
+    flex-direction: row; /* Arrange items horizontally */
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* Center items horizontally */
     gap: 15px; /* Space between the input fields and swap button */
     margin-top: 0;
+    width: 100%; /* Full width to adjust spacing */
+    max-width: 600px; /* Max width for layout consistency */
+    box-sizing: border-box; /* Include padding in width calculations */
 }
 
+/* Keep existing styles for .input-container and .conversion-input */
 .input-container {
     position: relative;
     width: 150px; /* Adjust width as needed */
+    flex: 1; /* Allow flexible sizing */
 }
 
 .conversion-input {
@@ -211,23 +218,19 @@ a:hover {
     border: 1px solid #6713aa;
     border-radius: 5px;
     width: 100%;
-    margin: 0 10px; /* Adds space between the inputs */
     text-align: center; /* Center the text */
-    position: relative;
     background: rgb(42, 0, 55); /* Ensure background matches the container */
+    box-sizing: border-box; /* Include padding in width calculations */
 }
 
 /* Media query for mobile screens */
 @media (max-width: 768px) {
-    .app {
-        max-width: 90%; 
-        margin: 15px auto 70px; /* Center the app container */
-    }
-
     .conversion-box {
         flex-direction: column; /* Stack items vertically */
         gap: 0; /* Eliminate gap between items */
         margin-top: 0; /* Remove top margin */
+        width: 100%; /* Full width for mobile view */
+        max-width: none; /* Remove max-width restriction */
     }
 
     .input-container {
