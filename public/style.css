@@ -69,6 +69,7 @@ a:hover {
     box-shadow: 7px 7px 33px 0px #00000026;
     border: 1px solid #9046B1;
     transition: 0.4s;
+    box-sizing: border-box;
 }
 
 .custom-dropdown {
@@ -523,9 +524,34 @@ button:focus {
     z-index: -1;
     overflow: hidden;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    margin-top: auto; /* Pushes the footer to the bottom of the screen */
 }
 
 .footer a {
     margin-left: 5px;
     margin-right: 5px;
+}
+
+/* Media query adjustments for mobile screens */
+@media (max-width: 1024px) {
+    .app {
+        max-width: 90%;
+        margin: 40px auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .app {
+        max-width: 95%;
+        margin: 30px auto;
+        padding: 20px 30px; /* Adjust padding for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .app {
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 15px 20px; /* Further adjust padding for very small screens */
+    }
 }
