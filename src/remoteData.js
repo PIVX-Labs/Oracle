@@ -1,10 +1,13 @@
 const https = require('https');
 const { dataSource } = require('./dataSource');
+
+//DATABASE
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/Oracle');
 const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistoricalData } = require('./db');
+const DataSourceDataSchema = require('../models/DataSourceData');
 
 const { filterOutliers, average } = require('./dataProcessing')
-
-
 
 let coinMarketCapApiKey = process.env.CMC_KEY;
 let ticker = process.env.TICKER || 'pivx';
@@ -40,10 +43,15 @@ async function getMarketData(marketData, dataSource, baseCurrency){
     }
 
     if (dataSource == 'binance'){
-        let binanceData = await getDataBinance(marketData, baseCurrency)
-        if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
-            console.log("bad region, binance won't give data")
-        }else{
+        //check if enabled
+        let binanceDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'binance' }).exec();
+        if(binanceDataStored.enabled){
+            let binanceData = await getDataBinance(marketData, baseCurrency)
+            if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
+                console.log("bad region, binance won't give data")
+                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
+            }else{
+            }
         }
     }
     if (dataSource == 'coinMarketCap'){

@@ -23,6 +23,8 @@ class dataSource {
         // 
         this.data = data
 
+        this.enabled
+
         //We use UNIX time not the javascript native (seconds in unix vs milliseconds as js native)
         this.lastUpdated = lastUpdated
 

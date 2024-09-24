@@ -42,7 +42,7 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
     arrHistoricalMarketData.forEach((historical)=>{
         if (historical.timeUpdated <= nStart && historical.timeUpdated >= nEnd) {
             if(historical.ticker == strCurrency){
-                returnData.push({timestamp: historical.timeUpdated, value: historical.tickerPrice})
+                returnData.push({timestamp: historical.timeUpdated, value: parseFloat(historical.tickerPrice)})
             }
         }
     })
