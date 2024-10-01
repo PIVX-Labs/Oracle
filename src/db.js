@@ -33,21 +33,12 @@ async function saveDataSource(priceData) {
             new: true
         });
     }
-
-    // // Save list to disk (generate directory if necessary)
-    // if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    // fs.writeFileSync('database/prices.json', JSON.stringify(priceDiskData, null, 2));
 }
 
 /**
  * Read a list of prices
  */
 async function readDataSource() {
-    // // Ensure the file exists
-    // if (!fs.existsSync('database/') || !fs.existsSync('database/prices.json')) return [];
-
-    // // Parse the list from disk
-    // const priceDiskData = JSON.parse(fs.readFileSync('database/prices.json', { encoding: 'utf8' }));
 
     const priceDiskData = await DataSourceDataSchema.find({})
 
@@ -87,22 +78,12 @@ async function saveHistoricalData(priceData){
         }
         let createHistoricalDataPoint = await DataSourceHistoricalData.create( savePricePoint );
     }
-
-    // // Save list to disk (generate directory if necessary)
-    // if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    // fs.writeFileSync('database/historical.json', JSON.stringify(priceDiskData, null, 2));
 }
 
 /**
  * Read a list of historical prices
  */
 async function readHistoricalDataSource() {
-    // // Ensure the file exists
-    // if (!fs.existsSync('database/') || !fs.existsSync('database/historical.json')) return [];
-
-    // // Parse the list from disk
-    // const priceDiskData = JSON.parse(fs.readFileSync('database/historical.json', { encoding: 'utf8' }));
-
     const priceDiskData = await DataSourceHistoricalData.find({})
 
     // Convert to Order classes with correct typing
