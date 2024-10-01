@@ -16,24 +16,28 @@ async function jumpStart(){
             dataSourceName: 'coinGecko',
             data: [],
             enabled: true,
+            updateSnapshotTime:63,
             lastUpdated: 0,
         })
         DataSourceDataSchema.create({
             dataSourceName: 'coinGeckoDirect',
             data: [],
             enabled: true,
+            updateSnapshotTime:70,
             lastUpdated: 0,
         })
         DataSourceDataSchema.create({
             dataSourceName: 'binance',
             data: [],
             enabled: true,
+            binance:10,
             lastUpdated: 0,
         })
         DataSourceDataSchema.create({
             dataSourceName: 'coinMarketCap',
             data: [],
             enabled: true,
+            coinMarketCap: 10,
             lastUpdated: 0,
         })
     }

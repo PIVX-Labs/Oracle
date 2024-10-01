@@ -12,16 +12,8 @@ const { filterOutliers, average } = require('./dataProcessing')
 let coinMarketCapApiKey = process.env.CMC_KEY;
 let ticker = process.env.TICKER || 'pivx';
 
-// Listed in seconds
-const dataSourceUpdateTime = { 
-    coinGecko: 63,
-    coinGeckoDirect: 70,
-    coinMarketCap: 10,
-    binance: 10,
-}
-
 // Time listed in seconds (default 3600)
-const historicalSnapshotTime = 80
+const historicalSnapshotTime = process.env.HISTORICAL_SNAPSHOT_TIME || 3600
 
 /**
  * Checks the time from the last checks of our data sources updates them if need be, and returns the data the users need
@@ -358,7 +350,7 @@ async function autoCheckData(){
     }
     // Aggregate the prices from our various sources
     arrMarketData.forEach((cMarketDataLastChecked) => {
-        if (cMarketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - dataSourceUpdateTime[cMarketDataLastChecked.dataSourceName]) {
+        if (cMarketDataLastChecked.lastUpdated < (new Date().getTime() / 1000) - cMarketDataLastChecked.updateSnapshotTime) {
             // Start a data refresh if this looks outdated
             console.log("Updated database: " + cMarketDataLastChecked.dataSourceName);
             getMarketData(arrMarketData, cMarketDataLastChecked.dataSourceName, 'usd');
