@@ -1,7 +1,3 @@
-// "ticker": "btc",
-// "tickerPrice": 0.00000367,
-// "timeUpdated": 1721691044
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
