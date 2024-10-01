@@ -14,28 +14,38 @@ let ticker = process.env.TICKER || 'pivx';
 
 // Time listed in seconds (default 3600)
 const historicalSnapshotTime = process.env.HISTORICAL_SNAPSHOT_TIME || 3600
+const autoUpdateInterval = process.env.AUTO_UPDATE || 300
+
 
 /**
  * Checks the time from the last checks of our data sources updates them if need be, and returns the data the users need
- * @param {string} baseCurrency //The currency ticker that we want against pivx if none passed we will return everything we have
+ * @param {string} baseCurrency - The currency ticker that we want against pivx if none passed we will return everything we have
  */
 async function getMarketData(marketData, dataSource, baseCurrency){
     // Get the last update from each of the data sources
     if (dataSource == 'coinGecko'){
-        let coinGeckoData = await getDataCoinGecko(marketData, baseCurrency)
-        // Average the price in coinGecko
-        if(coinGeckoData){
-        }else{
-            console.log("issue with coinGeckoData: ")
+        let coinGeckoDirectDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'coinGeckoDirect' }).exec();
+        if(coinGeckoDirectDataStored.enabled){
+            let coinGeckoData = await getDataCoinGecko(marketData, baseCurrency)
+            // Average the price in coinGecko
+            if(coinGeckoData){
+            }else{
+                console.log("issue with coinGeckoData: ")
+                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+            }
         }
     }
 
     if (dataSource == 'coinGeckoDirect'){
-        let coinGeckoDirectData = await getDataCoinGeckoDirect(marketData, baseCurrency)
-        // Average the price in coinGeckoDirect
-        if(coinGeckoDirectData){
-        }else{
-            console.log("issue with coinGeckoDirectData: " + coinGeckoDirectData)
+        let coinGeckoDirectDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'coinGeckoDirect' }).exec();
+            if(coinGeckoDirectDataStored.enabled){
+            let coinGeckoDirectData = await getDataCoinGeckoDirect(marketData, baseCurrency)
+            // Average the price in coinGeckoDirect
+            if(coinGeckoDirectData){
+            }else{
+                console.log("issue with coinGeckoDirectData: " + coinGeckoDirectData)
+                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+            }
         }
     }
 
@@ -45,7 +55,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
         if(binanceDataStored.enabled){
             let binanceData = await getDataBinance(marketData, baseCurrency)
             if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
-                console.log("bad region, binance won't give data")
+                console.log("bad region, binance won't give data, Disabling")
                 const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
             }else{
             }
@@ -57,7 +67,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             let CoinMarketCapData = await getDataCoinMarketCap(marketData, baseCurrency)
             if(CoinMarketCapData.data){
             }else{
-                console.log("Coin Market Cap not working")
+                console.log("Coin Market Cap not working, Disabling")
                 const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinMarketCap'},{enabled : false})
             }
         }
@@ -204,9 +214,6 @@ async function getDataBinance(marketData, baseCurrency){
             // check if dataSource already exists
 
             await updateOrCreateDataSource(binanceData)
-
-            // marketData.push(binanceData)
-            // saveDataSource(marketData)
         }else{
             let binanceReturnData = await getMarketDataSource(marketData, 'binance')
             binanceReturnData.data.binance[`${baseCurrency}`] = parseFloat(data.price)
@@ -358,8 +365,8 @@ async function autoCheckData(){
     });
 }
 
-//Check even if no visitors every 5 minutes
-setInterval(() => {autoCheckData();}, 300000);
+//Check even if no visitors 
+setInterval(() => {autoCheckData();}, autoUpdateInterval * 1000);
 
 
 module.exports = {
