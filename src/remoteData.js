@@ -4,19 +4,24 @@ const { dataSource } = require('./dataSource');
 //DATABASE
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/Oracle');
-const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistoricalData } = require('./db');
+const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistoricalData, updateOrCreateDataSource } = require('./db');
 const DataSourceDataSchema = require('../models/DataSourceData');
 
 const { filterOutliers, average } = require('./dataProcessing')
 
 let coinMarketCapApiKey = process.env.CMC_KEY;
 let ticker = process.env.TICKER || 'pivx';
-const dataSourceUpdateTime = { //listed in seconds
+
+// Listed in seconds
+const dataSourceUpdateTime = { 
     coinGecko: 63,
     coinGeckoDirect: 70,
     coinMarketCap: 10,
     binance: 10,
 }
+
+// Time listed in seconds (default 3600)
+const historicalSnapshotTime = 80
 
 /**
  * Checks the time from the last checks of our data sources updates them if need be, and returns the data the users need
@@ -55,10 +60,14 @@ async function getMarketData(marketData, dataSource, baseCurrency){
         }
     }
     if (dataSource == 'coinMarketCap'){
-        let CoinMarketCapData =await getDataCoinMarketCap(marketData, baseCurrency)
-        if(CoinMarketCapData.data){
-        }else{
-            console.log("Coin Market Cap not working")
+        let coinMarketCapDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'coinMarketCap' }).exec();
+        if(coinMarketCapDataStored.enabled){
+            let CoinMarketCapData = await getDataCoinMarketCap(marketData, baseCurrency)
+            if(CoinMarketCapData.data){
+            }else{
+                console.log("Coin Market Cap not working")
+                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinMarketCap'},{enabled : false})
+            }
         }
     }
 }
@@ -88,7 +97,7 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
 
     const newestAddition = Math.max(...arrHistoricalMarketData.map(o => o.timeUpdated))
 
-    if(newestAddition < (new Date().getTime() / 1000) - 3600){
+    if(newestAddition < (new Date().getTime() / 1000) - historicalSnapshotTime){
         // Grab all prices for the coin with timestamp
         const arrAggregatedPrices = [];
         marketData.forEach((cMarketDataLastChecked) => {
@@ -201,8 +210,11 @@ async function getDataBinance(marketData, baseCurrency){
             // If binance is not in the db create it
             const binanceData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
             // check if dataSource already exists
-            marketData.push(binanceData)
-            saveDataSource(marketData)
+
+            await updateOrCreateDataSource(binanceData)
+
+            // marketData.push(binanceData)
+            // saveDataSource(marketData)
         }else{
             let binanceReturnData = await getMarketDataSource(marketData, 'binance')
             binanceReturnData.data.binance[`${baseCurrency}`] = parseFloat(data.price)
@@ -219,8 +231,11 @@ async function getDataBinance(marketData, baseCurrency){
             // If binance is not in the db create it
             const binanceData = new dataSource("binance",binanceReturnData,Math.floor(new Date().getTime() / 1000))
             // Check if dataSource already exists
-            marketData.push(binanceData)
-            saveDataSource(marketData)
+
+            updateOrCreateDataSource(binanceData)
+
+            // marketData.push(binanceData)
+            // saveDataSource(marketData)
         }else{
             // something went wrong with the binance call but we should still update the time it was last checked to stop spam api calls
             let binanceReturnData = await getMarketDataSource(marketData, 'binance')
@@ -257,8 +272,11 @@ async function getDataCoinGecko(marketData, baseCurrency){
             // If coingecko is not in the db create it
             const coinGeckoData = new dataSource("coinGecko",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
             // Check if dataSource already exists
-            marketData.push(coinGeckoData)
-            saveDataSource(marketData)
+
+            updateOrCreateDataSource(coinGeckoData)
+
+            // marketData.push(coinGeckoData)
+            // saveDataSource(marketData)
         }else{
             // Update coingecko
             updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))
@@ -304,8 +322,11 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
                     //if coingecko is not in the db create it
                     const coinGeckoData = new dataSource("coinGeckoDirect",coinGeckoReturnData,Math.floor(new Date().getTime() / 1000))
                     // Check if dataSource already exists
-                    marketData.push(coinGeckoData)
-                    saveDataSource(marketData)
+
+                    updateOrCreateDataSource(coinGeckoData)
+
+                    // marketData.push(coinGeckoData)
+                    // saveDataSource(marketData)
                 }else{
                     // Update coingecko
                     updateDataSource(marketData, dataFromDisk, coinGeckoReturnData, Math.floor(new Date().getTime() / 1000))

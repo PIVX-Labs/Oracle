@@ -12,15 +12,6 @@ class dataSource {
         //The name of the dataSource
         this.dataSourceName = dataSourceName
 
-        //Object of current price data that the data source provides in name:price format
-        //the 'market place' name is required due to allowing aggregators like coingecko and coinmarketcap
-        // stakecube:
-        //     {
-        //         btc:0.0000630
-        //         eth:0.01
-        //         usd:0.45
-        //     }
-        // 
         this.data = data
 
         this.enabled

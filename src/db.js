@@ -6,6 +6,42 @@ const DataSourceDataSchema = require('../models/DataSourceData');
 const DataSourceHistoricalData = require('../models/DataSourceHistoricalData');
 
 /**
+ * This function is used to jumpstart if a person has no data in mongodb
+ */
+async function jumpStart(){
+    const dataSourceExists = await DataSourceDataSchema.find({}).lean()
+
+    if(dataSourceExists === undefined || dataSourceExists.length == 0){
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinGecko',
+            data: [],
+            enabled: true,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinGeckoDirect',
+            data: [],
+            enabled: true,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'binance',
+            data: [],
+            enabled: true,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinMarketCap',
+            data: [],
+            enabled: true,
+            lastUpdated: 0,
+        })
+    }
+}
+
+jumpStart()
+
+/**
  * Save or update current prices
  * @param {Array<dataSource>} priceData 
  */
@@ -15,7 +51,6 @@ async function saveDataSource(priceData) {
 
     // Convert orders to a disk-safe format
     const priceDiskData = [];
-
 
     for (const dataSource of priceData) {
         // Convert to JSON
@@ -33,21 +68,24 @@ async function saveDataSource(priceData) {
             new: true
         });
     }
+}
 
-    // // Save list to disk (generate directory if necessary)
-    // if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    // fs.writeFileSync('database/prices.json', JSON.stringify(priceDiskData, null, 2));
+async function updateOrCreateDataSource(marketData){
+    // MONGODB UPDATE
+    const filter = { dataSourceName: marketData.dataSourceName};
+    const update = {
+        data: marketData.data,
+        lastUpdated: marketData.lastUpdated,
+    }
+    let updateAmountOrdered = await DataSourceDataSchema.findOneAndUpdate(filter, update, {
+        new: true
+    });
 }
 
 /**
  * Read a list of prices
  */
 async function readDataSource() {
-    // // Ensure the file exists
-    // if (!fs.existsSync('database/') || !fs.existsSync('database/prices.json')) return [];
-
-    // // Parse the list from disk
-    // const priceDiskData = JSON.parse(fs.readFileSync('database/prices.json', { encoding: 'utf8' }));
 
     const priceDiskData = await DataSourceDataSchema.find({})
 
@@ -76,7 +114,6 @@ async function saveHistoricalData(priceData){
     // Convert orders to a disk-safe format
     const priceDiskData = [];
 
-
     for (const dataSource of priceData) {
         priceDiskData.push(dataSource);
         // MONGODB UPDATE
@@ -87,22 +124,12 @@ async function saveHistoricalData(priceData){
         }
         let createHistoricalDataPoint = await DataSourceHistoricalData.create( savePricePoint );
     }
-
-    // // Save list to disk (generate directory if necessary)
-    // if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    // fs.writeFileSync('database/historical.json', JSON.stringify(priceDiskData, null, 2));
 }
 
 /**
  * Read a list of historical prices
  */
 async function readHistoricalDataSource() {
-    // // Ensure the file exists
-    // if (!fs.existsSync('database/') || !fs.existsSync('database/historical.json')) return [];
-
-    // // Parse the list from disk
-    // const priceDiskData = JSON.parse(fs.readFileSync('database/historical.json', { encoding: 'utf8' }));
-
     const priceDiskData = await DataSourceHistoricalData.find({})
 
     // Convert to Order classes with correct typing
@@ -124,5 +151,8 @@ module.exports = {
     saveDataSource,
     readDataSource,
     saveHistoricalData,
-    readHistoricalDataSource
+    readHistoricalDataSource,
+
+    updateOrCreateDataSource,
+
 }
