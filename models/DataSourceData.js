@@ -8,6 +8,10 @@ const DataSourceData = new Schema({
         type: Schema.Types.Boolean,
         default: true,
     },
+    updateSnapshotTime: {
+        type:Number,
+        default: 60,
+    },
     lastUpdated: Number,
 });
 
