@@ -329,6 +329,7 @@ button:focus {
         max-width: 95%;
         margin: 30px auto;
         padding: 20px 30px; /* Adjust padding for smaller screens */
+        width: 80%;
     }
 }
 
