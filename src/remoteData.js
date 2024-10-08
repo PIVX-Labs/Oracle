@@ -344,7 +344,6 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
 
 //Auto check the data
 async function autoCheckData(){
-    console.log("Ran Auto Checker")
     // Fetch market data from disk
     let arrMarketData = await readDataSource();
     if (arrMarketData.length == 0) {
