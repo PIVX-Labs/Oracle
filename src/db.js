@@ -120,13 +120,14 @@ async function saveHistoricalData(priceData){
 
     for (const dataSource of priceData) {
         priceDiskData.push(dataSource);
+        let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
         // MONGODB UPDATE
         const savePricePoint = {
             ticker: dataSource.ticker,
             tickerPrice: dataSource.tickerPrice,
             timeUpdated: dataSource.timeUpdated,
         }
-        let createHistoricalDataPoint = await DataSourceHistoricalData.create( savePricePoint );
+        let createHistoricalDataPoint = await DataSourceHistoricalData.findOneAndUpdate( query, savePricePoint,{upsert:true,setDefaultsOnInsert: true} );
     }
 }
 
@@ -140,7 +141,7 @@ async function readHistoricalDataSource() {
     const priceData = [];
     for (const pDiskData of priceDiskData) {
         // Parse the Order from JSON
-        const priceDiskDataOut = historicalDataSource.from(pDiskData);
+        const priceDiskDataOut = pDiskData;
 
         // Push to the Class List
         priceData.push(priceDiskDataOut);
