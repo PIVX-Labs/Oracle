@@ -200,6 +200,12 @@ async function getDataBinance(marketData, baseCurrency){
    
     let data = await getData(url)
 
+    let binanceReturnData = {}
+    binanceReturnData['binance'] = {}
+
+    let dbSymbol = data.symbol.replace("PIVX","").toLowerCase()
+    binanceReturnData.binance[`${dbSymbol}`] = data.price
+
     let dataFromDisk = await getMarketDataSource(marketData,"binance")
     // check if binance returned what we think it should
     if(data.price){
@@ -215,10 +221,8 @@ async function getDataBinance(marketData, baseCurrency){
 
             await updateOrCreateDataSource(binanceData)
         }else{
-            let binanceReturnData = await getMarketDataSource(marketData, 'binance')
-            binanceReturnData.data.binance[`${baseCurrency}`] = parseFloat(data.price)
-            // update binance
-            updateDataSource(marketData, dataFromDisk, binanceReturnData.data, Math.floor(new Date().getTime() / 1000))
+            updateDataSource(marketData, dataFromDisk, binanceReturnData, Math.floor(new Date().getTime() / 1000))
+
         }
     // something went wrong with binance
     }else{
