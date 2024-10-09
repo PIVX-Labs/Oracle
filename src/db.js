@@ -92,19 +92,8 @@ async function updateOrCreateDataSource(marketData){
 async function readDataSource() {
 
     const priceDiskData = await DataSourceDataSchema.find({})
-
-    // Convert to Order classes with correct typing
-    const priceData = [];
-    for (const pDiskData of priceDiskData) {
-        // Parse the Order from JSON
-        const priceDiskDataOut = pDiskData;
-
-        // Push to the Class List
-        priceData.push(priceDiskDataOut);
-    }
-
     // Return the orders
-    return priceData;
+    return priceDiskData;
 }
 
 /**
@@ -135,20 +124,13 @@ async function saveHistoricalData(priceData){
  * Read a list of historical prices
  */
 async function readHistoricalDataSource() {
-    const priceDiskData = await DataSourceHistoricalData.find({})
-
-    // Convert to Order classes with correct typing
-    const priceData = [];
-    for (const pDiskData of priceDiskData) {
-        // Parse the Order from JSON
-        const priceDiskDataOut = pDiskData;
-
-        // Push to the Class List
-        priceData.push(priceDiskDataOut);
-    }
+    //For now we will not respond with data over 31 days ago
+    const today = new Date();
+    const priorDate = Math.floor(new Date(new Date().setDate(today.getDate() - 31)).valueOf() /1000);
+    const priceDiskData = await DataSourceHistoricalData.find({timeUpdated:{$gt:priorDate}})
 
     // Return the orders
-    return priceData;
+    return priceDiskData;
 }
 
 
