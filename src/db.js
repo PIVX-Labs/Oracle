@@ -97,7 +97,7 @@ async function readDataSource() {
     const priceData = [];
     for (const pDiskData of priceDiskData) {
         // Parse the Order from JSON
-        const priceDiskDataOut = dataSource.from(pDiskData);
+        const priceDiskDataOut = pDiskData;
 
         // Push to the Class List
         priceData.push(priceDiskDataOut);
