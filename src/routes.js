@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { dataSource } = require('./dataSource');
-const { readDataSource, readHistoricalDataSource, saveDataSource } = require('./db');
+const { readDataSource, readHistoricalDataSource } = require('./db');
 
 const { getMarketData } = require('./remoteData');
 const { filterOutliers, average } = require('./dataProcessing')
@@ -32,7 +31,7 @@ router.get(ROOT_PREFIX + '/api/v1/historical/:currency', async(req, res)=>{
     const nEnd = Math.abs(Number(req.query.end) || (timeInSecondsNow - 86400));
 
     // Fetch market data from disk
-    let arrHistoricalMarketData = await readHistoricalDataSource();
+    let arrHistoricalMarketData = await readHistoricalDataSource(strCurrency);
     if (arrHistoricalMarketData.length == 0) {
         console.error('Warning: Oracle has no data after multiple attempts, cannot provide data to API requests!');
         return res.status(500).json({ err: "Oracle doesn't have enough data to respond, try again later!" });

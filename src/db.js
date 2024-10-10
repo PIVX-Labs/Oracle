@@ -1,6 +1,5 @@
 //simple JSON "database"
 const fs = require('fs');
-const { dataSource, historicalDataSource } = require('./dataSource');
 
 const DataSourceDataSchema = require('../models/DataSourceData');
 const DataSourceHistoricalData = require('../models/DataSourceHistoricalData');
@@ -111,21 +110,33 @@ async function saveHistoricalData(priceData){
 /**
  * Read a list of historical prices
  */
-async function readHistoricalDataSource() {
+async function readHistoricalDataSource(strCurrency) {
     //For now we will not respond with data over 31 days ago
     const today = new Date();
     const priorDate = Math.floor(new Date(new Date().setDate(today.getDate() - 31)).valueOf() /1000);
-    const priceDiskData = await DataSourceHistoricalData.find({timeUpdated:{$gt:priorDate}})
-
+    const priceDiskData = await DataSourceHistoricalData.find(
+        {
+            timeUpdated:{$gt:priorDate},
+            ticker:{$in:strCurrency}
+        })
     // Return the orders
     return priceDiskData;
 }
 
+async function getNewestTimeStampHistoricalData(){
+    const newestHistoricalTimeStamp = await DataSourceHistoricalData.findOne({}).sort({timeUpdated: -1})
+    if(newestHistoricalTimeStamp){
+        return newestHistoricalTimeStamp.timeUpdated;
+    }else{
+        return 0;
+    }
+}
 
 module.exports = {
     saveDataSource,
     readDataSource,
     saveHistoricalData,
     readHistoricalDataSource,
+    getNewestTimeStampHistoricalData,
     updateOrCreateDataSource,
 }

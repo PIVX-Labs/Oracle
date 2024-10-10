@@ -1,10 +1,9 @@
 const https = require('https');
-const { dataSource } = require('./dataSource');
 
 //DATABASE
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/Oracle');
-const { readDataSource, readHistoricalDataSource, saveDataSource, saveHistoricalData, updateOrCreateDataSource } = require('./db');
+const { readDataSource, readHistoricalDataSource,getNewestTimeStampHistoricalData, saveDataSource, saveHistoricalData, updateOrCreateDataSource } = require('./db');
 const DataSourceDataSchema = require('../models/DataSourceData');
 
 const { filterOutliers, average } = require('./dataProcessing')
@@ -31,7 +30,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             if(coinGeckoData){
             }else{
                 console.log("issue with coinGeckoData: ")
-                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
             }
         }
     }
@@ -44,7 +43,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             if(coinGeckoDirectData){
             }else{
                 console.log("issue with coinGeckoDirectData: " + coinGeckoDirectData)
-                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
             }
         }
     }
@@ -56,7 +55,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             let binanceData = await getDataBinance(marketData, baseCurrency)
             if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
                 console.log("bad region, binance won't give data, Disabling")
-                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
+                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
             }else{
             }
         }
@@ -68,7 +67,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             if(CoinMarketCapData.data){
             }else{
                 console.log("Coin Market Cap not working, Disabling")
-                const updateDataSource = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinMarketCap'},{enabled : false})
+                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinMarketCap'},{enabled : false})
             }
         }
     }
@@ -95,11 +94,10 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
 
     await saveDataSource(marketData);
 
-    let arrHistoricalMarketData = await readHistoricalDataSource();
+    let newestAddition = await getNewestTimeStampHistoricalData()
 
-    const newestAddition = Math.max(...arrHistoricalMarketData.map(o => o.timeUpdated))
-
-    if(newestAddition < (new Date().getTime() / 1000) - historicalSnapshotTime){
+    if(newestAddition < Math.floor((new Date().getTime() / 1000) - historicalSnapshotTime)){
+    console.log("New snapshot time")
         // Grab all prices for the coin with timestamp
         const arrAggregatedPrices = [];
         marketData.forEach((cMarketDataLastChecked) => {
@@ -130,9 +128,7 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
             aggregatedAndOutlierFiltered.push(filteredDataReturn)
         }
 
-
-        arrHistoricalMarketData.push(...aggregatedAndOutlierFiltered)
-        await saveHistoricalData(arrHistoricalMarketData)
+        await saveHistoricalData(aggregatedAndOutlierFiltered)
         console.log("Updated Historical Data")
     }
 }
@@ -310,7 +306,6 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
         console.log(dataFromDisk)
         updateDataSource(marketData, dataFromDisk, dataFromDisk.data, Math.floor(new Date().getTime() / 1000))
         return dataFromDisk.data
-
     }else{
         if(data.market_data){
             if(data.market_data.current_price){
