@@ -9,6 +9,7 @@ const DataSourceHistoricalData = require('../models/DataSourceHistoricalData');
  * This function is used to jumpstart if a person has no data in mongodb
  */
 async function jumpStart(){
+    console.log("Jumpstarted")
     const dataSourceExists = await DataSourceDataSchema.find({}).lean()
 
     if(dataSourceExists === undefined || dataSourceExists.length == 0){
@@ -50,23 +51,18 @@ jumpStart()
  * @param {Array<dataSource>} priceData 
  */
 async function saveDataSource(priceData) {
+    console.log("saveDataSource")
 
     if (!priceData || !priceData.length) return;
 
-    // Convert orders to a disk-safe format
-    const priceDiskData = [];
-
     for (const dataSource of priceData) {
-        // Convert to JSON
-        const cDataSource = dataSource.toJSON();
-        priceDiskData.push(cDataSource);
 
         // MONGODB UPDATE
         const filter = { dataSourceName: dataSource.dataSourceName};
         const update = {
-            dataSourceName: cDataSource.dataSourceName,
-            data: cDataSource.data,
-            lastUpdated: cDataSource.lastUpdated,
+            dataSourceName: dataSource.dataSourceName,
+            data: dataSource.data,
+            lastUpdated: dataSource.lastUpdated,
         }
         let updateAmountOrdered = await DataSourceDataSchema.findOneAndUpdate(filter, update, {
             new: true
@@ -75,6 +71,7 @@ async function saveDataSource(priceData) {
 }
 
 async function updateOrCreateDataSource(marketData){
+    console.log("updateOrCreate")
     // MONGODB UPDATE
     const filter = { dataSourceName: marketData.dataSourceName};
     const update = {
@@ -90,7 +87,7 @@ async function updateOrCreateDataSource(marketData){
  * Read a list of prices
  */
 async function readDataSource() {
-
+    console.log("readDataSource")
     const priceDiskData = await DataSourceDataSchema.find({})
     // Return the orders
     return priceDiskData;
@@ -102,13 +99,10 @@ async function readDataSource() {
  * @returns 
  */
 async function saveHistoricalData(priceData){
+    console.log("saveHistoricalData")
     if (!priceData || !priceData.length) return;
 
-    // Convert orders to a disk-safe format
-    const priceDiskData = [];
-
     for (const dataSource of priceData) {
-        priceDiskData.push(dataSource);
         let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
         // MONGODB UPDATE
         const savePricePoint = {
@@ -124,6 +118,7 @@ async function saveHistoricalData(priceData){
  * Read a list of historical prices
  */
 async function readHistoricalDataSource() {
+    console.log("readHistoricalData")
     //For now we will not respond with data over 31 days ago
     const today = new Date();
     const priorDate = Math.floor(new Date(new Date().setDate(today.getDate() - 31)).valueOf() /1000);
@@ -139,7 +134,5 @@ module.exports = {
     readDataSource,
     saveHistoricalData,
     readHistoricalDataSource,
-
     updateOrCreateDataSource,
-
 }
