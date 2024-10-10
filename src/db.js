@@ -9,7 +9,6 @@ const DataSourceHistoricalData = require('../models/DataSourceHistoricalData');
  * This function is used to jumpstart if a person has no data in mongodb
  */
 async function jumpStart(){
-    console.log("Jumpstarted")
     const dataSourceExists = await DataSourceDataSchema.find({}).lean()
 
     if(dataSourceExists === undefined || dataSourceExists.length == 0){
@@ -51,8 +50,6 @@ jumpStart()
  * @param {Array<dataSource>} priceData 
  */
 async function saveDataSource(priceData) {
-    console.log("saveDataSource")
-
     if (!priceData || !priceData.length) return;
 
     for (const dataSource of priceData) {
@@ -71,7 +68,6 @@ async function saveDataSource(priceData) {
 }
 
 async function updateOrCreateDataSource(marketData){
-    console.log("updateOrCreate")
     // MONGODB UPDATE
     const filter = { dataSourceName: marketData.dataSourceName};
     const update = {
@@ -87,7 +83,6 @@ async function updateOrCreateDataSource(marketData){
  * Read a list of prices
  */
 async function readDataSource() {
-    console.log("readDataSource")
     const priceDiskData = await DataSourceDataSchema.find({})
     // Return the orders
     return priceDiskData;
@@ -99,7 +94,6 @@ async function readDataSource() {
  * @returns 
  */
 async function saveHistoricalData(priceData){
-    console.log("saveHistoricalData")
     if (!priceData || !priceData.length) return;
 
     for (const dataSource of priceData) {
@@ -118,7 +112,6 @@ async function saveHistoricalData(priceData){
  * Read a list of historical prices
  */
 async function readHistoricalDataSource() {
-    console.log("readHistoricalData")
     //For now we will not respond with data over 31 days ago
     const today = new Date();
     const priorDate = Math.floor(new Date(new Date().setDate(today.getDate() - 31)).valueOf() /1000);
