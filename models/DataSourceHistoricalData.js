@@ -2,10 +2,24 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const DataSourceHistoricalData = new Schema({
+    timeUpdated: {
+      type:Date,
+    },
+    values:{
+
+    },
     ticker: String,
     tickerPrice: Schema.Types.Decimal128,
-    timeUpdated: Number,
-});
+
+  },
+  {
+    timeseries:{
+      timeField: 'timeUpdated',
+      metaField: "values",
+      granularity: 'seconds'
+    }
+  }
+);
 
 //Convert Decimal128
 const decimal2JSON = (v, i, prev) => {

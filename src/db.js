@@ -97,29 +97,31 @@ async function saveHistoricalData(priceData){
 
     for (const dataSource of priceData) {
         let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
+        let oneThousandX = dataSource.timeUpdated*1000
         // MONGODB UPDATE
         const savePricePoint = {
+            timeUpdated: oneThousandX,
             ticker: dataSource.ticker,
             tickerPrice: dataSource.tickerPrice,
-            timeUpdated: dataSource.timeUpdated,
         }
-        let createHistoricalDataPoint = await DataSourceHistoricalData.findOneAndUpdate( query, savePricePoint,{upsert:true,setDefaultsOnInsert: true} );
+        let createHistoricalDataPoint = await DataSourceHistoricalData.create(savePricePoint);
     }
 }
 
 /**
  * Read a list of historical prices
  */
-async function readHistoricalDataSource(strCurrency) {
-    //For now we will not respond with data over 31 days ago
-    const today = new Date();
-    const priorDate = Math.floor(new Date(new Date().setDate(today.getDate() - 31)).valueOf() /1000);
+async function readHistoricalDataSource(strCurrency, nStart, nEnd) {
     const priceDiskData = await DataSourceHistoricalData.find(
         {
-            timeUpdated:{$gt:priorDate},
+            timeUpdated:{
+                $gte:new Date(nEnd*1000),
+                $lt:new Date(nStart*1000)
+            },
             ticker:{$in:strCurrency}
         })
     // Return the orders
+    
     return priceDiskData;
 }
 
