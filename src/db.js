@@ -1,6 +1,48 @@
 //simple JSON "database"
 const fs = require('fs');
-const { dataSource, historicalDataSource } = require('./dataSource');
+
+const DataSourceDataSchema = require('../models/DataSourceData');
+const DataSourceHistoricalData = require('../models/DataSourceHistoricalData');
+
+/**
+ * This function is used to jumpstart if a person has no data in mongodb
+ */
+async function jumpStart(){
+    const dataSourceExists = await DataSourceDataSchema.find({}).lean()
+
+    if(dataSourceExists === undefined || dataSourceExists.length == 0){
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinGecko',
+            data: [],
+            enabled: true,
+            updateSnapshotTime:63,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinGeckoDirect',
+            data: [],
+            enabled: true,
+            updateSnapshotTime:70,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'binance',
+            data: [],
+            enabled: true,
+            binance:10,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'coinMarketCap',
+            data: [],
+            enabled: true,
+            coinMarketCap: 10,
+            lastUpdated: 0,
+        })
+    }
+}
+
+jumpStart()
 
 /**
  * Save or update current prices
@@ -9,43 +51,40 @@ const { dataSource, historicalDataSource } = require('./dataSource');
 async function saveDataSource(priceData) {
     if (!priceData || !priceData.length) return;
 
-    // Convert orders to a disk-safe format
-    const priceDiskData = [];
-
-
     for (const dataSource of priceData) {
-        // Convert to JSON
-        const cDataSource = dataSource.toJSON();
-        priceDiskData.push(cDataSource);
-    }
 
-    // Save list to disk (generate directory if necessary)
-    if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    fs.writeFileSync('database/prices.json', JSON.stringify(priceDiskData, null, 2));
+        // MONGODB UPDATE
+        const filter = { dataSourceName: dataSource.dataSourceName};
+        const update = {
+            dataSourceName: dataSource.dataSourceName,
+            data: dataSource.data,
+            lastUpdated: dataSource.lastUpdated,
+        }
+        let updateAmountOrdered = await DataSourceDataSchema.findOneAndUpdate(filter, update, {
+            new: true
+        });
+    }
+}
+
+async function updateOrCreateDataSource(marketData){
+    // MONGODB UPDATE
+    const filter = { dataSourceName: marketData.dataSourceName};
+    const update = {
+        data: marketData.data,
+        lastUpdated: marketData.lastUpdated,
+    }
+    let updateAmountOrdered = await DataSourceDataSchema.findOneAndUpdate(filter, update, {
+        new: true
+    });
 }
 
 /**
  * Read a list of prices
  */
 async function readDataSource() {
-    // Ensure the file exists
-    if (!fs.existsSync('database/') || !fs.existsSync('database/prices.json')) return [];
-
-    // Parse the list from disk
-    const priceDiskData = JSON.parse(fs.readFileSync('database/prices.json', { encoding: 'utf8' }));
-
-    // Convert to Order classes with correct typing
-    const priceData = [];
-    for (const pDiskData of priceDiskData) {
-        // Parse the Order from JSON
-        const priceDiskDataOut = dataSource.from(pDiskData);
-
-        // Push to the Class List
-        priceData.push(priceDiskDataOut);
-    }
-
+    const priceDiskData = await DataSourceDataSchema.find({})
     // Return the orders
-    return priceData;
+    return priceDiskData;
 }
 
 /**
@@ -56,47 +95,50 @@ async function readDataSource() {
 async function saveHistoricalData(priceData){
     if (!priceData || !priceData.length) return;
 
-    // Convert orders to a disk-safe format
-    const priceDiskData = [];
-
-
     for (const dataSource of priceData) {
-        priceDiskData.push(dataSource);
+        let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
+        let oneThousandX = dataSource.timeUpdated*1000
+        // MONGODB UPDATE
+        const savePricePoint = {
+            timeUpdated: oneThousandX,
+            ticker: dataSource.ticker,
+            tickerPrice: dataSource.tickerPrice,
+        }
+        let createHistoricalDataPoint = await DataSourceHistoricalData.create(savePricePoint);
     }
-
-    // Save list to disk (generate directory if necessary)
-    if (!fs.existsSync('database/')) fs.mkdirSync('database');
-    fs.writeFileSync('database/historical.json', JSON.stringify(priceDiskData, null, 2));
 }
 
 /**
  * Read a list of historical prices
  */
-async function readHistoricalDataSource() {
-    // Ensure the file exists
-    if (!fs.existsSync('database/') || !fs.existsSync('database/historical.json')) return [];
-
-    // Parse the list from disk
-    const priceDiskData = JSON.parse(fs.readFileSync('database/historical.json', { encoding: 'utf8' }));
-
-    // Convert to Order classes with correct typing
-    const priceData = [];
-    for (const pDiskData of priceDiskData) {
-        // Parse the Order from JSON
-        const priceDiskDataOut = historicalDataSource.from(pDiskData);
-
-        // Push to the Class List
-        priceData.push(priceDiskDataOut);
-    }
-
+async function readHistoricalDataSource(strCurrency, nStart, nEnd) {
+    const priceDiskData = await DataSourceHistoricalData.find(
+        {
+            timeUpdated:{
+                $gte:new Date(nEnd*1000),
+                $lt:new Date(nStart*1000)
+            },
+            ticker:{$in:strCurrency}
+        })
     // Return the orders
-    return priceData;
+    
+    return priceDiskData;
 }
 
+async function getNewestTimeStampHistoricalData(){
+    const newestHistoricalTimeStamp = await DataSourceHistoricalData.findOne({}).sort({timeUpdated: -1})
+    if(newestHistoricalTimeStamp){
+        return newestHistoricalTimeStamp.timeUpdated;
+    }else{
+        return 0;
+    }
+}
 
 module.exports = {
     saveDataSource,
     readDataSource,
     saveHistoricalData,
-    readHistoricalDataSource
+    readHistoricalDataSource,
+    getNewestTimeStampHistoricalData,
+    updateOrCreateDataSource,
 }

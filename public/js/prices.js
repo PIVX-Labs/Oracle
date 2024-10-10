@@ -138,7 +138,7 @@ function updateDisplay() {
 
 /** Fetches and renders chart data for the user-selected currency and time scale */
 async function updatePriceChart(fAnimate = false) {
-    const chartRes = await fetch(`https://pivxla.bz/oracle/api/v1/historical/${strSelectedCurrency}?end=${Math.round(Date.now() / 1000) - timeScale}`);
+    const chartRes = await fetch(`${baseURL}/api/v1/historical/${strSelectedCurrency}?end=${Math.round(Date.now() / 1000) - timeScale}`);
     if (chartRes.ok) {
         arrHistorical = await chartRes.json();
 
