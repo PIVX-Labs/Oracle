@@ -30,7 +30,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             if(coinGeckoData){
             }else{
                 console.log("issue with coinGeckoData: ")
-                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+                //const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
             }
         }
     }
@@ -43,7 +43,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             if(coinGeckoDirectData){
             }else{
                 console.log("issue with coinGeckoDirectData: " + coinGeckoDirectData)
-                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
+                //const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'coinGeckoDirect'},{enabled : false})
             }
         }
     }
@@ -55,7 +55,7 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             let binanceData = await getDataBinance(marketData, baseCurrency)
             if(binanceData.msg == "Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error."){
                 console.log("bad region, binance won't give data, Disabling")
-                const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
+                //const updateDataSourceMongo = await DataSourceDataSchema.updateOne({ dataSourceName: 'binance'},{enabled : false})
             }else{
             }
         }
