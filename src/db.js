@@ -96,7 +96,7 @@ async function saveHistoricalData(priceData){
     if (!priceData || !priceData.length) return;
 
     for (const dataSource of priceData) {
-        let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
+                let query = {ticker: dataSource.ticker, timeUpdated: dataSource.timeUpdated}
         let oneThousandX = dataSource.timeUpdated*1000
         // MONGODB UPDATE
         const savePricePoint = {
@@ -128,7 +128,7 @@ async function readHistoricalDataSource(strCurrency, nStart, nEnd) {
 async function getNewestTimeStampHistoricalData(){
     const newestHistoricalTimeStamp = await DataSourceHistoricalData.findOne({}).sort({timeUpdated: -1})
     if(newestHistoricalTimeStamp){
-        return newestHistoricalTimeStamp.timeUpdated;
+        return new Date(newestHistoricalTimeStamp.timeUpdated).getTime()/1000;
     }else{
         return 0;
     }
