@@ -10,6 +10,7 @@ const dataSourceUpdateTime = { //listed in seconds
     coinGeckoDirect: 70,
     coinMarketCap: 10,
     binance: 10,
+    xt:120,
 }
 
 /** An optional prefix for the service router: useful if plugging in to an existing Express App */
