@@ -373,12 +373,15 @@ async function getDataTradeOgre(marketData, baseCurrency){
         })
 
         marketDataTradeOgreReturn.forEach(function(orderedMarketData){
-            console.log(Object.keys(orderedMarketData)[0].replace('PIVX-',''))
-            console.log(Object.values(orderedMarketData)[0].price)
-            let key = Object.keys(orderedMarketData)[0].replace('PIVX-','')
+            let key = Object.keys(orderedMarketData)[0].replace('PIVX-','').toLowerCase()
             let price = Object.values(orderedMarketData)[0].price
             // Set the value to db
             tradeOgreReturnData.tradeOgre[key] = parseFloat(price)
+
+            // Oracle frequently needs usd rather then usdt so if we have usdt use it as usd
+            if(Object.keys(orderedMarketData)[0].replace('PIVX-','').toLowerCase() == 'usdt'){
+                tradeOgreReturnData.tradeOgre['usd'] = parseFloat(price)
+            }
         })
 
 
