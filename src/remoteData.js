@@ -71,6 +71,13 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             }
         }
     }
+    if (dataSource == 'tradeOgre'){
+        let tradeOgreDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'tradeOgre' }).exec();
+        if(tradeOgreDataStored.enabled){
+            let tradeOgreData = await getDataTradeOgre(marketData, baseCurrency)
+            if(tradeOgreData){}else{console.log("Error retrieving tradeogre.com data")}
+        }
+    }
 }
 
 /**
@@ -341,6 +348,56 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
     }
 }
 
+
+/**
+ * 
+ * @param {*} marketData 
+ * @param {*} baseCurrency 
+ * @returns 
+ */
+async function getDataTradeOgre(marketData, baseCurrency){
+    console.log("ran tradeOgre")
+    let url = 'https://tradeogre.com/api/v1/markets'
+    let data = await getData(url)
+    if(Array.isArray(data)){
+        let tradeOgreReturnData ={}
+        tradeOgreReturnData['tradeOgre'] = {}
+
+        let marketDataTradeOgreReturn = []
+        data.forEach(function(marketDataName){
+            // console.log(Object.values(marketDataName)[0].basename)
+            if(Object.values(marketDataName)[0].basename == 'PIVX'){
+                // console.log(marketDataName)
+                marketDataTradeOgreReturn.push(marketDataName)
+            }
+        })
+
+        marketDataTradeOgreReturn.forEach(function(orderedMarketData){
+            console.log(Object.keys(orderedMarketData)[0].replace('PIVX-',''))
+            console.log(Object.values(orderedMarketData)[0].price)
+            let key = Object.keys(orderedMarketData)[0].replace('PIVX-','')
+            let price = Object.values(orderedMarketData)[0].price
+            // Set the value to db
+            tradeOgreReturnData.tradeOgre[key] = parseFloat(price)
+        })
+
+
+    let dataFromDisk = await getMarketDataSource(marketData,"tradeOgre")
+        if(dataFromDisk === undefined){
+            const tradeOgreDataResult = new dataSource("tradeOgre",tradeOgreReturnData,Math.floor(new Date().getTime() / 1000))
+            updateOrCreateDataSource(tradeOgreDataResult)
+        }else{
+            // Update coingecko
+            updateDataSource(marketData, dataFromDisk, tradeOgreReturnData, Math.floor(new Date().getTime() / 1000))
+        }
+        // For the old endpoint will be removed soon
+        return marketDataTradeOgreReturn
+    }else{
+        console.log("tradeOgre Error")
+        console.log(data)
+    }
+}
+
 //Auto check the data
 async function autoCheckData(){
     // Fetch market data from disk
@@ -351,6 +408,7 @@ async function autoCheckData(){
         await getMarketData(arrMarketData, 'coinGeckoDirect', 'usd')
         await getMarketData(arrMarketData, 'binance','usd');
         await getMarketData(arrMarketData, 'coinMarketCap','usd');
+        await getMarketData(arrMarketData, 'tradeOgre','usd');
         arrMarketData = await readDataSource();
     }
     // Aggregate the prices from our various sources
