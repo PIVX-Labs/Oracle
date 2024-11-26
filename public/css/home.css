@@ -340,3 +340,9 @@ button:focus {
         padding: 15px 20px; /* Further adjust padding for very small screens */
     }
 }
+
+.background {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
