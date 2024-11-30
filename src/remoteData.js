@@ -71,6 +71,13 @@ async function getMarketData(marketData, dataSource, baseCurrency){
             }
         }
     }
+    if (dataSource == 'xt'){
+        let xtDataStored = await DataSourceDataSchema.findOne({ dataSourceName: 'xt' }).exec();
+        if(xtDataStored.enabled){
+            let xtData = await getDataXt(marketData, baseCurrency)
+            if(xtData){}else{console.log("Error retrieving xt.com data")}
+        }
+    }
 }
 
 /**
@@ -341,6 +348,35 @@ async function getDataCoinGeckoDirect(marketData, baseCurrency){
     }
 }
 
+async function getDataXt(marketData, baseCurrency){
+    // Format input data and output in a known format for the rest of the program
+    // Check what the base currency is
+    // https://sapi.xt.com/v4/public/ticker?symbol=pivx_usdt
+    //
+    let url = 'https://sapi.xt.com/v4/public/ticker/price?symbols='+ticker+'_usdt'
+    let data = await getData(url)
+    if(data.result){
+        let XtReturnData ={}
+        XtReturnData['xt'] = {}
+        XtReturnData.xt['usdt'] = parseFloat(data.result[0].p)
+        XtReturnData.xt['usd'] = parseFloat(data.result[0].p)
+        let dataFromDisk = await getMarketDataSource(marketData,"xt")
+        if(dataFromDisk === undefined){
+            const xtDataResult = new dataSource("xt",XtReturnData,Math.floor(new Date().getTime() / 1000))
+            updateOrCreateDataSource(xtDataResult)
+        }else{
+            // Update coingecko
+            updateDataSource(marketData, dataFromDisk, XtReturnData, Math.floor(new Date().getTime() / 1000))
+        }
+        // For the old endpoint will be removed soon
+        return data.result
+    }else{
+        console.log("coingecko Error")
+        console.log(data)
+    }
+}
+
+
 //Auto check the data
 async function autoCheckData(){
     // Fetch market data from disk
@@ -351,6 +387,7 @@ async function autoCheckData(){
         await getMarketData(arrMarketData, 'coinGeckoDirect', 'usd')
         await getMarketData(arrMarketData, 'binance','usd');
         await getMarketData(arrMarketData, 'coinMarketCap','usd');
+        await getMarketData(arrMarketData, 'xt','usd')
         arrMarketData = await readDataSource();
     }
     // Aggregate the prices from our various sources
