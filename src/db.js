@@ -39,6 +39,13 @@ async function jumpStart(){
             coinMarketCap: 10,
             lastUpdated: 0,
         })
+        DataSourceDataSchema.create({
+            dataSourceName: 'tradeOgre',
+            data: [],
+            enabled: true,
+            updateSnapshotTime: 120,
+            lastUpdated: 0,
+        })
     }
 }
 

@@ -10,6 +10,7 @@ const dataSourceUpdateTime = { //listed in seconds
     coinGeckoDirect: 70,
     coinMarketCap: 10,
     binance: 10,
+    tradeOgre: 120,
 }
 
 /** An optional prefix for the service router: useful if plugging in to an existing Express App */
@@ -156,6 +157,7 @@ async function prepareMarketData() {
         await getMarketData(arrMarketData, 'coinGeckoDirect', 'usd')
         await getMarketData(arrMarketData, 'binance','usd');
         await getMarketData(arrMarketData, 'coinMarketCap','usd');
+        await getMarketData(arrMarketData, 'tradeOgre','usd');
         arrMarketData = await readDataSource();
     }
 
