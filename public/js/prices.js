@@ -187,7 +187,7 @@ async function updatePriceChart(fAnimate = false) {
         if (cCurrency.value > nChartRangeMax) nChartRangeMax = cCurrency.value;
         if (cCurrency.value < nChartRangeMin) nChartRangeMin = cCurrency.value;
         // Then set it in the chart, scaled up by 5% for padding purposes
-        priceChart.options.scales.y.min = nChartRangeMin * 1.05;
+        priceChart.options.scales.y.min = nChartRangeMin * 0.95;
         priceChart.options.scales.y.max = nChartRangeMax * 1.05;
 
         // Push "now" into the chart, to make it completely real-time
