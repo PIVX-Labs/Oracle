@@ -156,7 +156,8 @@ async function updatePriceChart(fAnimate = false) {
         }
 
         // Reset chart scaling range (to be computed below)
-        nChartRangeMin = nChartRangeMax = 0;
+        nChartRangeMin = Number.MAX_SAFE_INTEGER;
+        nChartRangeMax = 0;
 
         // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
@@ -343,9 +344,9 @@ function getChartDataset() {
 }
 
 /** The minimum scale displayed by the chart - updated by updatePriceChart() */
-let nChartRangeMin = 0;
+let nChartRangeMin = Number.MAX_SAFE_INTEGER;
 /** The maximum scale displayed by the chart - updated by updatePriceChart() */
-let nChartRangeMax = 1;
+let nChartRangeMax = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Prepare the chart context
