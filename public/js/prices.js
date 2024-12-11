@@ -155,6 +155,9 @@ async function updatePriceChart(fAnimate = false) {
             arrHistorical = arrHistorical.filter((_, i) => i % nSkip === 0);
         }
 
+        // Reset chart scaling range (to be computed below)
+        nChartRangeMin = nChartRangeMax = 0;
+
         // Convert the historical data into Chart Data
         for (const cPoint of arrHistorical) {
             // Check if this point is within the last 24h, and select the Epoch function accordingly
@@ -170,10 +173,22 @@ async function updatePriceChart(fAnimate = false) {
                 y: cPoint.value,     // y value for the price
                 timestamp: cPoint.timestamp // add timestamp for tooltip
             });
+
+            // Calculate min/max price values for proper chart scaling
+            if (cPoint.value > nChartRangeMax) nChartRangeMax = cPoint.value;
+            if (cPoint.value < nChartRangeMin) nChartRangeMin = cPoint.value;
         }
 
-        // Push "now" into the chart, to make it completely real-time
+        // Fetch the current price for real-time data integration
         const cCurrency = getCurrency(strSelectedCurrency);
+
+        // One last min/max calc just in case of real-time spikes - then set it as the global value
+        if (cCurrency.value > nChartRangeMax) nChartRangeMax = cCurrency.value;
+        if (cCurrency.value < nChartRangeMin) nChartRangeMin = cCurrency.value;
+        priceChart.options.scales.y.min = nChartRangeMin;
+        priceChart.options.scales.y.max = nChartRangeMax;
+
+        // Push "now" into the chart, to make it completely real-time
         priceChart.data.labels.push('Now');
         priceChart.data.datasets[0].data.push({
             x: Math.round(Date.now() / 1000), // current timestamp
@@ -326,6 +341,11 @@ function getChartDataset() {
         hitRadius: 100
     }
 }
+
+/** The minimum scale displayed by the chart - updated by updatePriceChart() */
+let nChartRangeMin = 0;
+/** The maximum scale displayed by the chart - updated by updatePriceChart() */
+let nChartRangeMax = 1;
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Prepare the chart context
