@@ -183,11 +183,12 @@ async function updatePriceChart(fAnimate = false) {
         // Fetch the current price for real-time data integration
         const cCurrency = getCurrency(strSelectedCurrency);
 
-        // One last min/max calc just in case of real-time spikes - then set it as the global value
+        // One last min/max calc just in case of real-time spikes
         if (cCurrency.value > nChartRangeMax) nChartRangeMax = cCurrency.value;
         if (cCurrency.value < nChartRangeMin) nChartRangeMin = cCurrency.value;
-        priceChart.options.scales.y.min = nChartRangeMin;
-        priceChart.options.scales.y.max = nChartRangeMax;
+        // Then set it in the chart, scaled up by 5% for padding purposes
+        priceChart.options.scales.y.min = nChartRangeMin * 1.05;
+        priceChart.options.scales.y.max = nChartRangeMax * 1.05;
 
         // Push "now" into the chart, to make it completely real-time
         priceChart.data.labels.push('Now');
