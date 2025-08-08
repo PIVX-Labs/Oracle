@@ -120,6 +120,13 @@ function updateDisplay() {
     const cCurrency = getCurrency(strSelectedCurrency);
     domPrice.innerText = `${cCurrency.value} ${cCurrency.currency.toUpperCase()}`;
 
+    // Fiat list (tickers): matches arrCurrencyData entries for non-crypto assets
+    const arrFiat = ['usd', 'aed', 'ars', 'aud', 'bdt', 'bhd', 'bmd', 'brl', 'cad', 'chf', 'clp', 'cny', 'czk', 'dkk', 'eur', 'gbp', 'hkd', 'huf', 'idr', 'ils', 'inr', 'jpy', 'krw', 'kwd', 'lkr', 'mmk', 'mxn', 'myr', 'nok', 'nzd', 'php', 'pkr', 'pln', 'rub', 'sar', 'sek', 'sgd', 'thb', 'try', 'twd', 'uah', 'vef', 'vnd', 'xag', 'xau', 'zar'];
+    const strValue = arrFiat.includes(cCurrency.currency)
+        ? cCurrency.value.toFixed(2)
+        : cCurrency.value;
+    document.title = `PIVX Oracle | ${strValue} ${cCurrency.currency.toUpperCase()}`;
+
     // Update the calculator "Currency" placeholder
     domCurInput.placeholder = cCurrency.currency.toUpperCase();
 
