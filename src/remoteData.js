@@ -135,12 +135,17 @@ async function updateDataSource(marketData,dataSource,data,updateTime){
 
 /**
  * System to send get requests to an external server
- * @param {string} url 
- * @returns 
+ * @param {string} url
+ * @returns
  */
 async function getData(url){
     return new Promise((resolve) => {
-        https.get(url, (resp)=>{
+        const options = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; Local-Bot/1.0)'
+            }
+        };
+        https.get(url, options, (resp)=>{
             let data = '';
             // A chunk of data has been received.
             resp.on('data', (chunk) => {
