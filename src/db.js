@@ -29,14 +29,21 @@ async function jumpStart(){
             dataSourceName: 'binance',
             data: [],
             enabled: true,
-            binance:10,
+            updateSnapshotTime:10,
             lastUpdated: 0,
         })
         DataSourceDataSchema.create({
             dataSourceName: 'coinMarketCap',
             data: [],
             enabled: true,
-            coinMarketCap: 10,
+            updateSnapshotTime: 10,
+            lastUpdated: 0,
+        })
+        DataSourceDataSchema.create({
+            dataSourceName: 'xt',
+            data: [],
+            enabled: true,
+            updateSnapshotTime: 120,
             lastUpdated: 0,
         })
     }
